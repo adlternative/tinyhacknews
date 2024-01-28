@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.service.impl;
 
 import com.adlternative.tinyhacknews.entity.User;
+import com.adlternative.tinyhacknews.entity.UserInfo;
 import com.adlternative.tinyhacknews.entity.UserRegister;
 import com.adlternative.tinyhacknews.mapper.UserMapper;
 import com.adlternative.tinyhacknews.service.UserService;
@@ -26,5 +27,11 @@ public class UserServiceImpl implements UserService {
     log.info(user.getUsername());
 
     userMapper.insert(user);
+  }
+
+  @Override
+  public UserInfo getSingleUserInfo(Long userId) {
+    User user = userMapper.selectById(userId);
+    return new UserInfo(user);
   }
 }
