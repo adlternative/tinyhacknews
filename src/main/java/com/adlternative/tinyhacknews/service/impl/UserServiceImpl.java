@@ -15,7 +15,7 @@ public class UserServiceImpl implements UserService {
   @Autowired UserMapper userMapper;
 
   @Override
-  public void register(UserRegister userRegister) {
+  public UserInfo register(UserRegister userRegister) {
     User user =
         User.builder()
             .username(userRegister.getName())
@@ -26,7 +26,11 @@ public class UserServiceImpl implements UserService {
     log.info(user.getPassword());
     log.info(user.getUsername());
 
-    userMapper.insert(user);
+    int affectedRows = userMapper.insert(user);
+    if (affectedRows == 0) {
+      // throw exception
+    }
+    return new UserInfo(user);
   }
 
   @Override
