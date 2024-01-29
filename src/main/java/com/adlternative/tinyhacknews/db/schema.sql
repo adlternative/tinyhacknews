@@ -1,6 +1,6 @@
 CREATE TABLE Users (
                       id INT PRIMARY KEY AUTO_INCREMENT,
-                      username VARCHAR(50) NOT NULL,
+                      username VARCHAR(50) NOT NULL UNIQUE,
                       password VARCHAR(255) NOT NULL,
                       email VARCHAR(50) NOT NULL,
                       createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
