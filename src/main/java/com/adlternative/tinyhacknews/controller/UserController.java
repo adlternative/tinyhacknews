@@ -7,6 +7,7 @@ import com.adlternative.tinyhacknews.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +25,14 @@ public class UserController {
     return userService.register(user);
   }
 
-  @GetMapping
-  public UserInfo getUserInfo(@RequestParam(name = "id") Long id) {
+  @GetMapping("/{id}")
+  public UserInfo getUserInfo(@PathVariable("id") Long id) {
     return userService.getSingleUserInfo(id);
+  }
+
+  @GetMapping
+  public UserInfo getUserInfoByUserName(@RequestParam(name = "name") String name) {
+    return userService.findByUserName(name);
   }
 
   @PutMapping

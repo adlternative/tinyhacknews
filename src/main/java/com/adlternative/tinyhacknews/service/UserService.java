@@ -13,4 +13,6 @@ public interface UserService {
   UserInfo updateUserInfo(Long userId, UpdateUserInfoDTO userInfo);
 
   void deleteUser(Long id);
+
+  UserInfo findByUserName(String name);
 }

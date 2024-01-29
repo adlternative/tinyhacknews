@@ -38,6 +38,10 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserInfo getSingleUserInfo(Long userId) {
     User user = userMapper.selectById(userId);
+    if (user == null) {
+      // throw exception
+    }
+
     return new UserInfo(user);
   }
 
@@ -73,5 +77,11 @@ public class UserServiceImpl implements UserService {
     if (affectedRows == 0) {
       // throw exception
     }
+  }
+
+  @Override
+  public UserInfo findByUserName(String name) {
+    User user = userMapper.findByUserName(name);
+    return new UserInfo(user);
   }
 }
