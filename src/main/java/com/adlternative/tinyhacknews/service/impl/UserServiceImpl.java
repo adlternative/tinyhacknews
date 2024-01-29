@@ -4,11 +4,16 @@ import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
 import com.adlternative.tinyhacknews.entity.User;
 import com.adlternative.tinyhacknews.entity.UserInfo;
 import com.adlternative.tinyhacknews.entity.UserRegister;
+import com.adlternative.tinyhacknews.exception.InternalErrorException;
+import com.adlternative.tinyhacknews.exception.InvalidArgException;
+import com.adlternative.tinyhacknews.exception.UserNotFoundException;
+import com.adlternative.tinyhacknews.exception.UsernameExistsException;
 import com.adlternative.tinyhacknews.mapper.UserMapper;
 import com.adlternative.tinyhacknews.service.UserService;
 import com.mysql.cj.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,60 +33,69 @@ public class UserServiceImpl implements UserService {
     log.info(user.getPassword());
     log.info(user.getUsername());
 
-    int affectedRows = userMapper.insert(user);
-    if (affectedRows == 0) {
-      // throw exception
+    try {
+      int affectedRows = userMapper.insert(user);
+      if (affectedRows == 0) {
+        throw new InternalErrorException("Failed to insert user");
+      }
+    } catch (DuplicateKeyException e) {
+      // log
+      throw new UsernameExistsException(
+          "The username '" + user.getUsername() + "' is already taken.");
     }
     return new UserInfo(user);
   }
 
   @Override
   public UserInfo getSingleUserInfo(Long userId) {
-    User user = userMapper.selectById(userId);
-    if (user == null) {
-      // throw exception
-    }
-
-    return new UserInfo(user);
+    return new UserInfo(
+        userMapper
+            .selectById(userId)
+            .orElseThrow((() -> new UserNotFoundException("User not found for id: " + userId))));
   }
 
   @Override
   public UserInfo updateUserInfo(Long userId, UpdateUserInfoDTO updateUserInfoDTO) {
-    User.UserBuilder userBuilder = User.builder();
-
-    if (userId != null) {
-      userBuilder.id(userId);
+    if (userId == null) {
+      throw new InvalidArgException("userId is null");
     }
+
+    User user =
+        userMapper
+            .selectById(userId)
+            .orElseThrow((() -> new UserNotFoundException("User not found for id: " + userId)));
 
     if (!StringUtils.isNullOrEmpty(updateUserInfoDTO.getName())) {
-      userBuilder.username(updateUserInfoDTO.getName());
+      user.setUsername(updateUserInfoDTO.getName());
     }
     if (!StringUtils.isNullOrEmpty(updateUserInfoDTO.getEmail())) {
-      userBuilder.email(updateUserInfoDTO.getEmail());
+      user.setEmail(updateUserInfoDTO.getEmail());
     }
 
-    int affectedRows = userMapper.update(userBuilder.build());
+    int affectedRows = userMapper.update(user);
     if (affectedRows == 0) {
-      // throw exception
+      throw new InternalErrorException("Failed to update user");
     }
-    return UserInfo.builder()
-        .id(userId)
-        .name(updateUserInfoDTO.getName())
-        .email(updateUserInfoDTO.getEmail())
-        .build();
+    return new UserInfo(user);
   }
 
   @Override
   public void deleteUser(Long id) {
     int affectedRows = userMapper.delete(id);
     if (affectedRows == 0) {
-      // throw exception
+      throw new UserNotFoundException("User not found for id: " + id);
     }
   }
 
   @Override
   public UserInfo findByUserName(String name) {
-    User user = userMapper.findByUserName(name);
-    return new UserInfo(user);
+    if (StringUtils.isNullOrEmpty(name)) {
+      throw new InvalidArgException("name is empty");
+    }
+
+    return new UserInfo(
+        userMapper
+            .findByUserName(name)
+            .orElseThrow((() -> new UserNotFoundException("User not found for name: " + name))));
   }
 }
