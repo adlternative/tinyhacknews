@@ -17,6 +17,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<logbook.version>3.7.2</logbook.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -51,6 +52,23 @@
 			<version>1.2.33</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.zalando</groupId>
+			<artifactId>logbook-spring-boot-starter</artifactId>
+			<version>${logbook.version}</version>
+		</dependency>
+		<!-- springboot2 需要加这个配置 -->
+		<dependency>
+			<groupId>org.zalando</groupId>
+			<artifactId>logbook-json</artifactId>
+			<version>${logbook.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.zalando</groupId>
+			<artifactId>logbook-servlet</artifactId>
+			<version>${logbook.version}</version>
+			<classifier>javax</classifier>
+		</dependency>
 	</dependencies>
 
 	<build>

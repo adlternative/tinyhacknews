@@ -7,3 +7,9 @@ spring:
         username: tiny-hacknews
         password: 123456
         driver-class-name: com.mysql.cj.jdbc.Driver
+
+logging:
+    level:
+        org:
+            zalando:
+                logbook: TRACE
