@@ -3,7 +3,7 @@ package com.adlternative.tinyhacknews.controller;
 import com.adlternative.tinyhacknews.entity.NewsInfo;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.service.NewsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/news")
+@RequiredArgsConstructor
 public class NewsController {
 
   // 提交新闻
@@ -29,5 +30,5 @@ public class NewsController {
 
   // 删除新闻
 
-  @Autowired private NewsService newsService;
+  private final NewsService newsService;
 }

@@ -11,12 +11,13 @@ import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UserMapper;
 import com.adlternative.tinyhacknews.service.NewsService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
   @Override
   public NewsInfo submit(Long userId, SubmitNewsInputDTO submitNewsInputDTO) {
@@ -43,6 +44,6 @@ public class NewsServiceImpl implements NewsService {
     }
   }
 
-  @Autowired private NewsMapper newsMapper;
-  @Autowired private UserMapper userMapper;
+  private final NewsMapper newsMapper;
+  private final UserMapper userMapper;
 }
