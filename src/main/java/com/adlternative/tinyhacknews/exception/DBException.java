@@ -1,11 +1,9 @@
 package com.adlternative.tinyhacknews.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-public class DBException extends RuntimeException {
+public class DBException extends WebException {
   public DBException(String message) {
-    super(message);
+    super(HttpStatus.INTERNAL_SERVER_ERROR, message);
   }
 }

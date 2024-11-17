@@ -1,11 +1,9 @@
 package com.adlternative.tinyhacknews.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class InvalidArgException extends RuntimeException {
+public class InvalidArgException extends WebException {
   public InvalidArgException(String message) {
-    super(message);
+    super(HttpStatus.BAD_REQUEST, message);
   }
 }
