@@ -4,6 +4,9 @@ import com.adlternative.tinyhacknews.entity.NewsInfo;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.service.NewsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +30,18 @@ public class NewsController {
   // 修改新闻
 
   // 查看新闻
+  @GetMapping("/{id}")
+  public NewsInfo getNews(
+      @PathVariable(name = "id") Long id, @RequestParam(name = "user_id") Long userId) {
+    return newsService.getNews(id, userId);
+  }
 
   // 删除新闻
+  @DeleteMapping("/{id}")
+  public void deleteNews(
+      @PathVariable(name = "id") Long id, @RequestParam(name = "user_id") Long userId) {
+    newsService.deleteNews(id, userId);
+  }
 
   private final NewsService newsService;
 }
