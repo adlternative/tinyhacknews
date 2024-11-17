@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Component;
 
 @Mapper
@@ -27,4 +28,7 @@ public interface NewsMapper {
 
   @Select("SELECT * FROM News WHERE id = #{id}")
   Optional<News> selectById(Long id);
+
+  @Update("UPDATE News SET title=#{title}, url=#{url}, text=#{text} WHERE id=#{id}")
+  int update(News news);
 }

@@ -16,4 +16,6 @@ public interface NewsService {
   void deleteNews(Long id, Long userId);
 
   NewsInfo getNews(Long id, Long userId);
+
+  NewsInfo changeNews(Long id, Long userId, SubmitNewsInputDTO submitNewsInputDTO);
 }

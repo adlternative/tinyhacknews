@@ -73,26 +73,51 @@ public class NewsServiceImpl implements NewsService {
   @Override
   public NewsData getNews(Long id, Long userId) {
     // TODO: 校验用户权限
+    News news =
+        newsMapper
+            .selectById(id)
+            .orElseThrow(() -> new NewsNotFoundException("Failed to get news, news not found"));
+    User user =
+        userMapper
+            .selectById(news.getAuthorId())
+            .orElseThrow(() -> new UserNotFoundException("Failed to get news, user not found"));
+    return NewsData.builder()
+        .id(news.getId())
+        .url(news.getUrl())
+        .title(news.getTitle())
+        .text(news.getText())
+        .author(UserInfo.convertFrom(user))
+        .build();
+  }
 
-    try {
-      News news =
-          newsMapper
-              .selectById(id)
-              .orElseThrow(() -> new NewsNotFoundException("Failed to get news, news not found"));
-      User user =
-          userMapper
-              .selectById(news.getAuthorId())
-              .orElseThrow(() -> new UserNotFoundException("Failed to get news, user not found"));
-      return NewsData.builder()
-          .id(news.getId())
-          .url(news.getUrl())
-          .title(news.getTitle())
-          .text(news.getText())
-          .author(UserInfo.convertFrom(user))
-          .build();
-    } catch (Exception e) {
-      throw new InternalErrorException("get news failed", e);
+  @Override
+  public NewsInfo changeNews(Long id, Long userId, SubmitNewsInputDTO submitNewsInputDTO) {
+    News news =
+        newsMapper
+            .selectById(id)
+            .orElseThrow(() -> new NewsNotFoundException("Failed to get news, news not found"));
+    User user =
+        userMapper
+            .selectById(news.getAuthorId())
+            .orElseThrow(() -> new UserNotFoundException("Failed to get news, user not found"));
+
+    // 目前只是判断 userId 是否和 news.authorId 相等，之后会改成使用权限校验的方式
+    if (!Objects.equals(news.getAuthorId(), userId)) {
+      throw new ForbiddenException("You do not have permission to delete this news.");
     }
+
+    news.setTitle(submitNewsInputDTO.getTitle());
+    news.setText(submitNewsInputDTO.getText());
+    news.setUrl(submitNewsInputDTO.getUrl());
+    try {
+      int affectedRows = newsMapper.update(news);
+      if (affectedRows == 0) {
+        throw new DBException("Failed to update news, affectedRows equals to zero");
+      }
+    } catch (Exception e) {
+      throw new InternalErrorException("update news failed", e);
+    }
+    return NewsInfo.builder().id(news.getId()).author(UserInfo.convertFrom(user)).build();
   }
 
   private final NewsMapper newsMapper;
