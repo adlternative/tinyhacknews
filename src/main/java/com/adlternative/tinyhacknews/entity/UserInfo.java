@@ -26,4 +26,12 @@ public class UserInfo {
     name = user.getUsername();
     email = user.getEmail();
   }
+
+  public static UserInfo convertFrom(User user) {
+    return UserInfo.builder()
+        .id(user.getId())
+        .name(user.getUsername())
+        .email(user.getEmail())
+        .build();
+  }
 }

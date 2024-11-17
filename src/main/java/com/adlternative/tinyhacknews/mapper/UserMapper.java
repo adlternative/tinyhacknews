@@ -16,7 +16,7 @@ public interface UserMapper {
 
   @Insert(
       "INSERT INTO Users (username, email, password) VALUES (#{username}, #{email}, #{password})")
-  @Options(useGeneratedKeys = true)
+  @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
   int insert(User user);
 
   @Select("SELECT * FROM Users WHERE id = #{id}")

@@ -38,6 +38,7 @@ public class UserServiceImpl implements UserService {
       if (affectedRows == 0) {
         throw new InternalErrorException("Failed to insert user");
       }
+      log.debug("affectedRows=" + affectedRows);
     } catch (DuplicateKeyException e) {
       // log
       throw new UsernameExistsException(
