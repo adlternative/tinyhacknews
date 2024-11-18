@@ -16,3 +16,13 @@ CREATE TABLE IF NOT EXISTS  News (
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS Comments (
+                                     id INT PRIMARY KEY AUTO_INCREMENT,
+                                     text LONGTEXT NOT NULL,
+                                     parentCommentId BIGINT NULL,
+                                     newsId BIGINT NOT NULL,
+                                     authorId BIGINT NOT NULL,
+                                     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                     updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
