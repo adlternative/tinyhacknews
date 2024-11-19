@@ -11,6 +11,7 @@ import com.adlternative.tinyhacknews.exception.UsernameExistsException;
 import com.adlternative.tinyhacknews.mapper.UserMapper;
 import com.adlternative.tinyhacknews.service.UserService;
 import com.mysql.cj.util.StringUtils;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -24,11 +25,14 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserInfo register(UserRegister userRegister) {
+    Date date = new Date();
     User user =
         User.builder()
             .username(userRegister.getName())
             .email(userRegister.getEmail())
             .password(userRegister.getPassword())
+            .createdAt(date)
+            .updatedAt(date)
             .build();
     log.info(user.getEmail());
     log.info(user.getPassword());
@@ -73,6 +77,7 @@ public class UserServiceImpl implements UserService {
     if (!StringUtils.isNullOrEmpty(updateUserInfoDTO.getEmail())) {
       user.setEmail(updateUserInfoDTO.getEmail());
     }
+    user.setUpdatedAt(new Date());
 
     int affectedRows = userMapper.update(user);
     if (affectedRows == 0) {

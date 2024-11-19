@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,10 +22,13 @@ public class UserInfo {
   @JSONField(name = "email")
   String email;
 
+  Date createdAt;
+
   public UserInfo(User user) {
     id = user.getId();
     name = user.getUsername();
     email = user.getEmail();
+    createdAt = user.getCreatedAt();
   }
 
   public static UserInfo convertFrom(User user) {
@@ -32,6 +36,7 @@ public class UserInfo {
         .id(user.getId())
         .name(user.getUsername())
         .email(user.getEmail())
+        .createdAt(user.getCreatedAt())
         .build();
   }
 }

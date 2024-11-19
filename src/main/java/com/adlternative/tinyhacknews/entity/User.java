@@ -26,8 +26,8 @@ public class User implements Serializable {
   private String email;
 
   /** 创建时间 */
-  private Date createAt;
+  private Date createdAt;
 
   /** 上次更新时间 */
-  private Date updateAt;
+  private Date updatedAt;
 }

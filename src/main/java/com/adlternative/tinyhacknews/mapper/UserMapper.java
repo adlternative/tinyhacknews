@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public interface UserMapper {
 
   @Insert(
-      "INSERT INTO Users (username, email, password) VALUES (#{username}, #{email}, #{password})")
+      "INSERT INTO Users (username, email, password, createdAt, updatedAt) VALUES (#{username}, #{email}, #{password}, #{createdAt}, #{updatedAt})")
   @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
   int insert(User user);
 
@@ -23,7 +23,8 @@ public interface UserMapper {
   Optional<User> selectById(Long id);
 
   // 更新用户信息
-  @Update("UPDATE Users SET username=#{username}, email=#{email} WHERE id=#{id}")
+  @Update(
+      "UPDATE Users SET username=#{username}, email=#{email}, updatedAt=#{updatedAt} WHERE id=#{id}")
   int update(User user);
 
   @Delete("DELETE FROM Users WHERE id=#{id}")
