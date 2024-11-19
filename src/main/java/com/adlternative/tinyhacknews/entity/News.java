@@ -29,8 +29,8 @@ public class News implements Serializable {
   private Long authorId;
 
   /** 创建时间 */
-  private Date createAt;
+  private Date createdAt;
 
   /** 上次更新时间 */
-  private Date updateAt;
+  private Date updatedAt;
 }

@@ -2,7 +2,6 @@ package com.adlternative.tinyhacknews.service.impl;
 
 import com.adlternative.tinyhacknews.entity.News;
 import com.adlternative.tinyhacknews.entity.NewsData;
-import com.adlternative.tinyhacknews.entity.NewsInfo;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.entity.User;
 import com.adlternative.tinyhacknews.entity.UserInfo;
@@ -14,6 +13,7 @@ import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UserMapper;
 import com.adlternative.tinyhacknews.service.NewsService;
+import java.util.Date;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,25 +24,36 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
   @Override
-  public NewsInfo submit(Long userId, SubmitNewsInputDTO submitNewsInputDTO) {
+  public NewsData submit(Long userId, SubmitNewsInputDTO submitNewsInputDTO) {
     User user =
         userMapper
             .selectById(userId)
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
 
+    Date date = new Date();
     News news =
         News.builder()
             .title(submitNewsInputDTO.getTitle())
             .url(submitNewsInputDTO.getUrl())
             .text(submitNewsInputDTO.getText())
             .authorId(userId)
+            .createdAt(date)
+            .updatedAt(date)
             .build();
     try {
       int affectedRows = newsMapper.insert(news);
       if (affectedRows == 0) {
         throw new DBException("Failed to insert news, affectedRows equals to zero");
       }
-      return NewsInfo.builder().id(news.getId()).author(UserInfo.convertFrom(user)).build();
+      return NewsData.builder()
+          .id(news.getId())
+          .title(news.getTitle())
+          .text(news.getText())
+          .url(news.getUrl())
+          .createdAt(news.getCreatedAt())
+          .updatedAt(news.getUpdatedAt())
+          .author(UserInfo.convertFrom(user))
+          .build();
     } catch (Exception e) {
       throw new InternalErrorException("submit news failed", e);
     }
@@ -87,11 +98,13 @@ public class NewsServiceImpl implements NewsService {
         .title(news.getTitle())
         .text(news.getText())
         .author(UserInfo.convertFrom(user))
+        .createdAt(news.getCreatedAt())
+        .updatedAt(news.getUpdatedAt())
         .build();
   }
 
   @Override
-  public NewsInfo changeNews(Long id, Long userId, SubmitNewsInputDTO submitNewsInputDTO) {
+  public NewsData changeNews(Long id, Long userId, SubmitNewsInputDTO submitNewsInputDTO) {
     News news =
         newsMapper
             .selectById(id)
@@ -109,15 +122,25 @@ public class NewsServiceImpl implements NewsService {
     news.setTitle(submitNewsInputDTO.getTitle());
     news.setText(submitNewsInputDTO.getText());
     news.setUrl(submitNewsInputDTO.getUrl());
+    news.setUpdatedAt(new Date());
     try {
       int affectedRows = newsMapper.update(news);
       if (affectedRows == 0) {
         throw new DBException("Failed to update news, affectedRows equals to zero");
       }
+      return NewsData.builder()
+          .id(news.getId())
+          .title(news.getTitle())
+          .text(news.getText())
+          .url(news.getUrl())
+          .createdAt(news.getCreatedAt())
+          .updatedAt(news.getUpdatedAt())
+          .author(UserInfo.convertFrom(user))
+          .build();
+
     } catch (Exception e) {
       throw new InternalErrorException("update news failed", e);
     }
-    return NewsInfo.builder().id(news.getId()).author(UserInfo.convertFrom(user)).build();
   }
 
   private final NewsMapper newsMapper;

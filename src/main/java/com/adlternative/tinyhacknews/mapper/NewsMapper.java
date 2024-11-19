@@ -19,7 +19,7 @@ public interface NewsMapper {
    * @param news
    */
   @Insert(
-      "INSERT INTO News (title, url, text, authorId) VALUES (#{title}, #{url}, #{text}, #{authorId})")
+      "INSERT INTO News (title, url, text, authorId, createdAt, updatedAt) VALUES (#{title}, #{url}, #{text}, #{authorId}, #{createdAt}, #{updatedAt})")
   @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
   int insert(News news);
 
@@ -29,6 +29,7 @@ public interface NewsMapper {
   @Select("SELECT * FROM News WHERE id = #{id}")
   Optional<News> selectById(Long id);
 
-  @Update("UPDATE News SET title=#{title}, url=#{url}, text=#{text} WHERE id=#{id}")
+  @Update(
+      "UPDATE News SET title=#{title}, url=#{url}, text=#{text}, updatedAt=#{updatedAt} WHERE id=#{id}")
   int update(News news);
 }

@@ -1,6 +1,6 @@
 package com.adlternative.tinyhacknews.controller;
 
-import com.adlternative.tinyhacknews.entity.NewsInfo;
+import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.service.NewsService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class NewsController {
   // 提交新闻
 
   @PostMapping
-  public NewsInfo submitNews(
+  public NewsData submitNews(
       @RequestParam(name = "user_id") Long userId,
       @RequestBody SubmitNewsInputDTO submitNewsInputDTO) {
     return newsService.submit(userId, submitNewsInputDTO);
@@ -30,7 +30,7 @@ public class NewsController {
 
   // 修改新闻
   @PutMapping("/{id}")
-  public NewsInfo changeNews(
+  public NewsData changeNews(
       @PathVariable(name = "id") Long id,
       @RequestParam(name = "user_id") Long userId,
       @RequestBody SubmitNewsInputDTO submitNewsInputDTO) {
@@ -39,7 +39,7 @@ public class NewsController {
 
   // 查看新闻
   @GetMapping("/{id}")
-  public NewsInfo getNews(
+  public NewsData getNews(
       @PathVariable(name = "id") Long id, @RequestParam(name = "user_id") Long userId) {
     return newsService.getNews(id, userId);
   }
