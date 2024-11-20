@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Component;
@@ -25,13 +26,13 @@ public interface NewsMapper {
   int insert(News news);
 
   @Delete("DELETE FROM News WHERE id = #{id}")
-  int delete(Long id);
+  int delete(@Param("id") Long id);
 
   @Select("SELECT * FROM News WHERE id = #{id}")
-  Optional<News> selectById(Long id);
+  Optional<News> selectById(@Param("id") Long id);
 
   @Select("SELECT * FROM News WHERE authorId = #{authorId}")
-  List<News> selectByAuthorId(Long authorId);
+  List<News> selectByAuthorId(@Param("authorId") Long authorId);
 
   @Update(
       "UPDATE News SET title=#{title}, url=#{url}, text=#{text}, updatedAt=#{updatedAt} WHERE id=#{id}")

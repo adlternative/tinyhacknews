@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Component;
@@ -27,17 +28,17 @@ public interface CommentMapper {
   int insert(Comment comment);
 
   @Delete("delete from Comments where id = #{id}")
-  int delete(Long id);
+  int delete(@Param("id") Long id);
 
   @Update(
       "update Comments set text = #{text}, parentCommentId = #{parentCommentId}, newsId = #{newsId}, authorId = #{authorId}, createdAt = #{createdAt}, updatedAt = #{updatedAt} where id = #{id}")
   int modify(Comment comment);
 
   @Select("select * from Comments where id = #{id}")
-  Optional<Comment> selectById(Long id);
+  Optional<Comment> selectById(@Param("id") Long id);
 
   @Select("select * from Comments where newsId = #{newsId}")
-  List<Comment> selectByNewsId(Long newsId);
+  List<Comment> selectByNewsId(@Param("newsId") Long newsId);
 
   /**
    * 根据父评论 id 获取子评论
@@ -46,5 +47,5 @@ public interface CommentMapper {
    * @return
    */
   @Select("select * from Comments where parentCommentId = #{parentCommentId}")
-  List<Comment> selectByParentCommentId(Long parentCommentId);
+  List<Comment> selectByParentCommentId(@Param("parentCommentId") Long parentCommentId);
 }
