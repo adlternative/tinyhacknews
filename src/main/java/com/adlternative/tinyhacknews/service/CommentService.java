@@ -3,6 +3,7 @@ package com.adlternative.tinyhacknews.service;
 import com.adlternative.tinyhacknews.entity.CommentData;
 import com.adlternative.tinyhacknews.entity.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.entity.UpdateCommentInputDTO;
+import java.util.List;
 
 public interface CommentService {
 
@@ -39,4 +40,13 @@ public interface CommentService {
    * @param userId
    */
   CommentData getComment(Long id, Long userId);
+
+  /**
+   * 获取某个新闻下的所有评论
+   *
+   * @param newsId
+   * @param userId
+   * @return
+   */
+  List<CommentData> getComments(Long newsId, Long userId);
 }

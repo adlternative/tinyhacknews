@@ -1,8 +1,11 @@
 package com.adlternative.tinyhacknews.controller;
 
+import com.adlternative.tinyhacknews.entity.CommentData;
 import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
+import com.adlternative.tinyhacknews.service.CommentService;
 import com.adlternative.tinyhacknews.service.NewsService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -74,5 +77,20 @@ public class NewsController {
     newsService.deleteNews(id, userId);
   }
 
+  /**
+   * 获取某条新闻的所有评论
+   *
+   * @param newsId
+   * @param userId
+   * @return
+   */
+  @GetMapping("/{id}/comments")
+  public List<CommentData> getComments(
+      @PathVariable(name = "id") Long newsId, @RequestParam(name = "user_id") Long userId) {
+    // TODO: 添加分页参数
+    return commentService.getComments(newsId, userId);
+  }
+
   private final NewsService newsService;
+  private final CommentService commentService;
 }

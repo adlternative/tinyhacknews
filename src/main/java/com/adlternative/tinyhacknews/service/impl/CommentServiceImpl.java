@@ -18,7 +18,9 @@ import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UserMapper;
 import com.adlternative.tinyhacknews.service.CommentService;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -198,15 +200,32 @@ public class CommentServiceImpl implements CommentService {
             .orElseThrow(
                 () -> new UserNotFoundException("User not found for id: " + comment.getAuthorId()));
 
-    return CommentData.builder()
-        .id(comment.getId())
-        .author(UserInfo.convertFrom(user))
-        .createdAt(comment.getCreatedAt())
-        .updatedAt(comment.getUpdatedAt())
-        .text(comment.getText())
-        .parentCommentId(comment.getParentCommentId())
-        .newsId(comment.getNewsId())
-        .build();
+    return CommentData.convertFrom(comment, user);
+  }
+
+  @Override
+  public List<CommentData> getComments(Long newsId, Long userId) {
+    // TODO: userId 用于权限检查
+
+    // 证明新闻存在
+    News news =
+        newsMapper
+            .selectById(newsId)
+            .orElseThrow(() -> new NewsNotFoundException("News not found for id: " + newsId));
+    // TODO: 一条 sql, join 一下就好
+    return commentMapper.selectByNewsId(news.getId()).stream()
+        .map(
+            comment -> {
+              User user =
+                  userMapper
+                      .selectById(comment.getAuthorId())
+                      .orElseThrow(
+                          () ->
+                              new UserNotFoundException(
+                                  "User not found for id: " + comment.getAuthorId()));
+              return CommentData.convertFrom(comment, user);
+            })
+        .collect(Collectors.toList());
   }
 
   private final CommentMapper commentMapper;

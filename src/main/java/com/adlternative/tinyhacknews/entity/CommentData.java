@@ -18,4 +18,16 @@ public class CommentData {
   private Date createdAt;
 
   private Date updatedAt;
+
+  public static CommentData convertFrom(Comment comment, User user) {
+    return CommentData.builder()
+        .id(comment.getId())
+        .author(UserInfo.convertFrom(user))
+        .createdAt(comment.getCreatedAt())
+        .updatedAt(comment.getUpdatedAt())
+        .text(comment.getText())
+        .parentCommentId(comment.getParentCommentId())
+        .newsId(comment.getNewsId())
+        .build();
+  }
 }

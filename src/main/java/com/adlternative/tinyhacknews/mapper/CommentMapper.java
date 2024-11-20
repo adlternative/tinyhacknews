@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.mapper;
 
 import com.adlternative.tinyhacknews.entity.Comment;
+import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -34,4 +35,7 @@ public interface CommentMapper {
 
   @Select("select * from Comments where id = #{id}")
   Optional<Comment> selectById(Long id);
+
+  @Select("select * from Comments where newsId = #{newsId}")
+  List<Comment> selectByNewsId(Long newsId);
 }
