@@ -38,4 +38,13 @@ public interface CommentMapper {
 
   @Select("select * from Comments where newsId = #{newsId}")
   List<Comment> selectByNewsId(Long newsId);
+
+  /**
+   * 根据父评论 id 获取子评论
+   *
+   * @param parentCommentId
+   * @return
+   */
+  @Select("select * from Comments where parentCommentId = #{parentCommentId}")
+  List<Comment> selectByParentCommentId(Long parentCommentId);
 }

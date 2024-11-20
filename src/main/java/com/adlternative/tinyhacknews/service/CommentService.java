@@ -49,4 +49,6 @@ public interface CommentService {
    * @return
    */
   List<CommentData> getComments(Long newsId, Long userId);
+
+  List<CommentData> getSubComments(Long commentId, Long userId);
 }

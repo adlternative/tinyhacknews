@@ -228,6 +228,33 @@ public class CommentServiceImpl implements CommentService {
         .collect(Collectors.toList());
   }
 
+  @Override
+  public List<CommentData> getSubComments(Long commentId, Long userId) {
+    // TODO: userId 用于权限检查
+
+    // 证明评论存在
+    Comment parentComment =
+        commentMapper
+            .selectById(commentId)
+            .orElseThrow(
+                () ->
+                    new CommentNotFoundException("Parent comment not found for id: " + commentId));
+
+    return commentMapper.selectByParentCommentId(parentComment.getId()).stream()
+        .map(
+            comment -> {
+              User user =
+                  userMapper
+                      .selectById(comment.getAuthorId())
+                      .orElseThrow(
+                          () ->
+                              new UserNotFoundException(
+                                  "User not found for id: " + comment.getAuthorId()));
+              return CommentData.convertFrom(comment, user);
+            })
+        .collect(Collectors.toList());
+  }
+
   private final CommentMapper commentMapper;
   private final NewsMapper newsMapper;
   private final UserMapper userMapper;

@@ -4,6 +4,7 @@ import com.adlternative.tinyhacknews.entity.CommentData;
 import com.adlternative.tinyhacknews.entity.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.entity.UpdateCommentInputDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,6 +72,19 @@ public class CommentController {
   public CommentData getComment(
       @PathVariable Long id, @RequestParam(name = "user_id") Long userId) {
     return commentService.getComment(id, userId);
+  }
+
+  /**
+   * 获取某个评论的所有子评论
+   *
+   * @param commentId
+   * @param userId
+   * @return
+   */
+  @GetMapping("/{id}/sub_comments")
+  public List<CommentData> getSubComments(
+      @PathVariable(value = "id") Long commentId, @RequestParam(name = "user_id") Long userId) {
+    return commentService.getSubComments(commentId, userId);
   }
 
   private final CommentService commentService;
