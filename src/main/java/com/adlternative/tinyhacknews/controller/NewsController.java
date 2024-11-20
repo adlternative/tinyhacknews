@@ -19,8 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class NewsController {
 
-  // 提交新闻
-
+  /**
+   * 提交新闻
+   *
+   * @param userId
+   * @param submitNewsInputDTO
+   * @return
+   */
   @PostMapping
   public NewsData submitNews(
       @RequestParam(name = "user_id") Long userId,
@@ -28,7 +33,14 @@ public class NewsController {
     return newsService.submit(userId, submitNewsInputDTO);
   }
 
-  // 修改新闻
+  /**
+   * 修改新闻内容
+   *
+   * @param id
+   * @param userId
+   * @param submitNewsInputDTO
+   * @return
+   */
   @PutMapping("/{id}")
   public NewsData changeNews(
       @PathVariable(name = "id") Long id,
@@ -37,14 +49,25 @@ public class NewsController {
     return newsService.changeNews(id, userId, submitNewsInputDTO);
   }
 
-  // 查看新闻
+  /**
+   * 查看某条新闻内容
+   *
+   * @param id
+   * @param userId
+   * @return
+   */
   @GetMapping("/{id}")
   public NewsData getNews(
       @PathVariable(name = "id") Long id, @RequestParam(name = "user_id") Long userId) {
     return newsService.getNews(id, userId);
   }
 
-  // 删除新闻
+  /**
+   * 删除新闻
+   *
+   * @param id
+   * @param userId
+   */
   @DeleteMapping("/{id}")
   public void deleteNews(
       @PathVariable(name = "id") Long id, @RequestParam(name = "user_id") Long userId) {
