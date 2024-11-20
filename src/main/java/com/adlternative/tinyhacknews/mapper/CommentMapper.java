@@ -3,7 +3,6 @@ package com.adlternative.tinyhacknews.mapper;
 import com.adlternative.tinyhacknews.entity.Comment;
 import java.util.List;
 import java.util.Optional;
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -23,21 +22,21 @@ public interface CommentMapper {
    * @return
    */
   @Insert(
-      "insert into Comments(text, parentCommentId, newsId, authorId, createdAt, updatedAt) values(#{text}, #{parentCommentId},#{newsId}, #{authorId}, #{createAt}, #{updateAt})")
+      "insert into Comments(text, parentCommentId, newsId, authorId, createdAt, updatedAt) values(#{text}, #{parentCommentId},#{newsId}, #{authorId}, #{createdAt}, #{updatedAt})")
   @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
   int insert(Comment comment);
 
-  @Delete("delete from Comments where id = #{id}")
+  @Update("update Comments set is_deleted = 1 where id = #{id}")
   int delete(@Param("id") Long id);
 
   @Update(
-      "update Comments set text = #{text}, parentCommentId = #{parentCommentId}, newsId = #{newsId}, authorId = #{authorId}, createdAt = #{createdAt}, updatedAt = #{updatedAt} where id = #{id}")
+      "update Comments set text = #{text}, parentCommentId = #{parentCommentId}, newsId = #{newsId}, authorId = #{authorId}, createdAt = #{createdAt}, updatedAt = #{updatedAt} where id = #{id} and is_deleted = 0")
   int modify(Comment comment);
 
-  @Select("select * from Comments where id = #{id}")
+  @Select("select * from Comments where id = #{id} and is_deleted = 0")
   Optional<Comment> selectById(@Param("id") Long id);
 
-  @Select("select * from Comments where newsId = #{newsId}")
+  @Select("select * from Comments where newsId = #{newsId} and is_deleted = 0")
   List<Comment> selectByNewsId(@Param("newsId") Long newsId);
 
   /**
@@ -46,6 +45,6 @@ public interface CommentMapper {
    * @param parentCommentId
    * @return
    */
-  @Select("select * from Comments where parentCommentId = #{parentCommentId}")
+  @Select("select * from Comments where parentCommentId = #{parentCommentId} and is_deleted = 0")
   List<Comment> selectByParentCommentId(@Param("parentCommentId") Long parentCommentId);
 }
