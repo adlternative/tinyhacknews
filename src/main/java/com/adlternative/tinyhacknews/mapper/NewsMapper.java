@@ -33,6 +33,9 @@ public interface NewsMapper {
   @Select("SELECT * FROM News WHERE authorId = #{authorId} AND is_deleted = 0")
   List<News> selectByAuthorId(@Param("authorId") Long authorId);
 
+  @Select("SELECT * FROM News WHERE is_deleted = 0")
+  List<News> selectAll();
+
   @Update(
       "UPDATE News SET title=#{title}, url=#{url}, text=#{text}, updatedAt=#{updatedAt} WHERE id=#{id} AND is_deleted = 0")
   int update(News news);

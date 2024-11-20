@@ -49,4 +49,12 @@ public interface NewsService {
    * @return
    */
   List<NewsData> getAllNewsOfUser(Long userId);
+
+  /**
+   * 获取所有新闻
+   *
+   * @param userId
+   * @return
+   */
+  List<NewsData> getAllNews(Long userId);
 }

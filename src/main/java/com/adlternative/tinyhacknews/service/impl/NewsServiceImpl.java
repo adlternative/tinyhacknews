@@ -148,6 +148,17 @@ public class NewsServiceImpl implements NewsService {
         .collect(Collectors.toList());
   }
 
+  @Override
+  public List<NewsData> getAllNews(Long userId) {
+    User user =
+        userMapper
+            .selectById(userId)
+            .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
+    return newsMapper.selectAll().stream()
+        .map(singleNew -> NewsData.convertFromNews(singleNew, user))
+        .collect(Collectors.toList());
+  }
+
   private final NewsMapper newsMapper;
   private final UserMapper userMapper;
 }

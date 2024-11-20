@@ -91,6 +91,18 @@ public class NewsController {
     return commentService.getComments(newsId, userId);
   }
 
+  /**
+   * 获取所有新闻
+   *
+   * @param userId
+   * @return
+   */
+  @GetMapping("/all")
+  public List<NewsData> getAllNews(@RequestParam(name = "user_id") Long userId) {
+    // TODO: 添加分页参数
+    return newsService.getAllNews(userId);
+  }
+
   private final NewsService newsService;
   private final CommentService commentService;
 }
