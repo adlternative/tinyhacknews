@@ -3,7 +3,6 @@ package com.adlternative.tinyhacknews.mapper;
 import com.adlternative.tinyhacknews.entity.News;
 import java.util.List;
 import java.util.Optional;
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -25,16 +24,16 @@ public interface NewsMapper {
   @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
   int insert(News news);
 
-  @Delete("DELETE FROM News WHERE id = #{id}")
+  @Update("UPDATE News SET is_deleted = 1 WHERE id = #{id}")
   int delete(@Param("id") Long id);
 
-  @Select("SELECT * FROM News WHERE id = #{id}")
+  @Select("SELECT * FROM News WHERE id = #{id} AND is_deleted = 0")
   Optional<News> selectById(@Param("id") Long id);
 
-  @Select("SELECT * FROM News WHERE authorId = #{authorId}")
+  @Select("SELECT * FROM News WHERE authorId = #{authorId} AND is_deleted = 0")
   List<News> selectByAuthorId(@Param("authorId") Long authorId);
 
   @Update(
-      "UPDATE News SET title=#{title}, url=#{url}, text=#{text}, updatedAt=#{updatedAt} WHERE id=#{id}")
+      "UPDATE News SET title=#{title}, url=#{url}, text=#{text}, updatedAt=#{updatedAt} WHERE id=#{id} AND is_deleted = 0")
   int update(News news);
 }
