@@ -55,7 +55,7 @@ public class NewsServiceImpl implements NewsService {
           .author(UserInfo.convertFrom(user))
           .build();
     } catch (Exception e) {
-      throw new InternalErrorException("submit news failed", e);
+      throw new InternalErrorException("Submit news failed", e);
     }
   }
 
@@ -77,7 +77,7 @@ public class NewsServiceImpl implements NewsService {
         throw new DBException("Failed to delete news, affectedRows equals to zero");
       }
     } catch (Exception e) {
-      throw new InternalErrorException("delete news failed", e);
+      throw new InternalErrorException("Delete news failed", e);
     }
   }
 
@@ -112,11 +112,11 @@ public class NewsServiceImpl implements NewsService {
     User user =
         userMapper
             .selectById(news.getAuthorId())
-            .orElseThrow(() -> new UserNotFoundException("Failed to get news, user not found"));
+            .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
 
     // 目前只是判断 userId 是否和 news.authorId 相等，之后会改成使用权限校验的方式
     if (!Objects.equals(news.getAuthorId(), userId)) {
-      throw new ForbiddenException("You do not have permission to delete this news.");
+      throw new ForbiddenException("You do not have permission to change this news.");
     }
 
     news.setTitle(submitNewsInputDTO.getTitle());
@@ -139,7 +139,7 @@ public class NewsServiceImpl implements NewsService {
           .build();
 
     } catch (Exception e) {
-      throw new InternalErrorException("update news failed", e);
+      throw new InternalErrorException("Update news failed", e);
     }
   }
 

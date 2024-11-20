@@ -56,11 +56,11 @@ public class CommentServiceImpl implements CommentService {
               .orElseThrow(
                   () ->
                       new CommentNotFoundException(
-                          "Comment not found for id: "
+                          "Parent comment not found for id: "
                               + submitCommentInputDTO.getParentCommentId()));
       if (!parentComment.getNewsId().equals(news.getId())) {
         throw new InternalErrorException(
-            "parent comment news id not equals to your comment news id");
+            "Parent comment news id not equals to your comment news id");
       }
     }
 
@@ -92,7 +92,7 @@ public class CommentServiceImpl implements CommentService {
     } catch (DBException e) {
       throw e;
     } catch (Exception e) {
-      throw new InternalErrorException("submit comment failed", e);
+      throw new InternalErrorException("Submit comment failed", e);
     }
   }
 
@@ -128,7 +128,7 @@ public class CommentServiceImpl implements CommentService {
     } catch (DBException e) {
       throw e;
     } catch (Exception e) {
-      throw new InternalErrorException("delete comment failed", e);
+      throw new InternalErrorException("Delete comment failed", e);
     }
   }
 
@@ -153,7 +153,7 @@ public class CommentServiceImpl implements CommentService {
             .orElseThrow(() -> new CommentNotFoundException("Comment not found for id: " + id));
 
     if (!Objects.equals(comment.getAuthorId(), user.getId())) {
-      throw new ForbiddenException("You do not have permission to delete this comment.");
+      throw new ForbiddenException("You do not have permission to modify this comment.");
     }
     comment.setText(updateCommentInputDTO.getText());
     comment.setUpdatedAt(new Date());
@@ -175,7 +175,7 @@ public class CommentServiceImpl implements CommentService {
     } catch (DBException e) {
       throw e;
     } catch (Exception e) {
-      throw new InternalErrorException("modify comment failed", e);
+      throw new InternalErrorException("Modify comment failed", e);
     }
   }
 

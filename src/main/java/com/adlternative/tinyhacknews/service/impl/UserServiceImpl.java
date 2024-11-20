@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserInfo updateUserInfo(Long userId, UpdateUserInfoDTO updateUserInfoDTO) {
     if (userId == null) {
-      throw new InvalidArgException("userId is null");
+      throw new InvalidArgException("UserId is null");
     }
 
     User user =
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserInfo findByUserName(String name) {
     if (StringUtils.isNullOrEmpty(name)) {
-      throw new InvalidArgException("name is empty");
+      throw new InvalidArgException("Name is empty");
     }
 
     return new UserInfo(
