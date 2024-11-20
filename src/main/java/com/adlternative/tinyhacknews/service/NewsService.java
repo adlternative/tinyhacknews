@@ -2,6 +2,7 @@ package com.adlternative.tinyhacknews.service;
 
 import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
+import java.util.List;
 
 public interface NewsService {
 
@@ -40,4 +41,12 @@ public interface NewsService {
    * @return
    */
   NewsData changeNews(Long id, Long userId, SubmitNewsInputDTO submitNewsInputDTO);
+
+  /**
+   * 获取用户所有新闻
+   *
+   * @param userId
+   * @return
+   */
+  List<NewsData> getAllNewsOfUser(Long userId);
 }

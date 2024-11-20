@@ -14,7 +14,9 @@ import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UserMapper;
 import com.adlternative.tinyhacknews.service.NewsService;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -128,19 +130,22 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to update news, affectedRows equals to zero");
       }
-      return NewsData.builder()
-          .id(news.getId())
-          .title(news.getTitle())
-          .text(news.getText())
-          .url(news.getUrl())
-          .createdAt(news.getCreatedAt())
-          .updatedAt(news.getUpdatedAt())
-          .author(UserInfo.convertFrom(user))
-          .build();
+      return NewsData.convertFromNews(news, user);
 
     } catch (Exception e) {
       throw new InternalErrorException("Update news failed", e);
     }
+  }
+
+  @Override
+  public List<NewsData> getAllNewsOfUser(Long userId) {
+    User user =
+        userMapper
+            .selectById(userId)
+            .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
+    return newsMapper.selectByAuthorId(userId).stream()
+        .map(singleNew -> NewsData.convertFromNews(singleNew, user))
+        .collect(Collectors.toList());
   }
 
   private final NewsMapper newsMapper;

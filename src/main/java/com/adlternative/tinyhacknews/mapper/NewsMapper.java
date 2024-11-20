@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.mapper;
 
 import com.adlternative.tinyhacknews.entity.News;
+import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -28,6 +29,9 @@ public interface NewsMapper {
 
   @Select("SELECT * FROM News WHERE id = #{id}")
   Optional<News> selectById(Long id);
+
+  @Select("SELECT * FROM News WHERE authorId = #{authorId}")
+  List<News> selectByAuthorId(Long authorId);
 
   @Update(
       "UPDATE News SET title=#{title}, url=#{url}, text=#{text}, updatedAt=#{updatedAt} WHERE id=#{id}")

@@ -1,8 +1,10 @@
 package com.adlternative.tinyhacknews.controller;
 
+import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
 import com.adlternative.tinyhacknews.entity.UserInfo;
 import com.adlternative.tinyhacknews.entity.UserRegister;
+import com.adlternative.tinyhacknews.service.NewsService;
 import com.adlternative.tinyhacknews.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,11 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
   private final UserService userService;
+  private final NewsService newsService;
 
   /**
    * 注册用户
@@ -75,5 +80,16 @@ public class UserController {
   @DeleteMapping
   public void deleteUser(@RequestParam(name = "id") Long id) {
     userService.deleteUser(id);
+  }
+
+  /**
+   * 获取用户所有新闻
+   *
+   * @param id
+   */
+  @GetMapping("/{id}/news")
+  public List<NewsData> getAllNewsOfUser(@PathVariable(name = "id") Long id) {
+    // TODO: 添加分页逻辑
+    return newsService.getAllNewsOfUser(id);
   }
 }
