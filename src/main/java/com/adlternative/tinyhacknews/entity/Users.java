@@ -2,6 +2,7 @@ package com.adlternative.tinyhacknews.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -31,4 +32,7 @@ public class Users implements Serializable {
   private LocalDateTime createdAt;
 
   private LocalDateTime updatedAt;
+
+  /** 是否被删除 */
+  @TableLogic private Byte isDeleted;
 }
