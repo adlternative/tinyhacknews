@@ -6,7 +6,7 @@ import com.adlternative.tinyhacknews.entity.UserInfo;
 import com.adlternative.tinyhacknews.entity.UserRegister;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.adlternative.tinyhacknews.service.UserService;
-import java.util.List;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
-public class UserController {
+public class UsersController {
   private final UserService userService;
   private final NewsService newsService;
 
@@ -67,7 +69,7 @@ public class UserController {
    */
   @PutMapping
   public UserInfo updateUserInfo(
-      @RequestParam(name = "id") Long id, @RequestBody UpdateUserInfoDTO updateUserInfoDTO) {
+          @RequestParam(name = "id") Long id, @RequestBody UpdateUserInfoDTO updateUserInfoDTO) {
     return userService.updateUserInfo(id, updateUserInfoDTO);
   }
 

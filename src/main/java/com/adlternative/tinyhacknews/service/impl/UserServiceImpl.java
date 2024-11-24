@@ -1,17 +1,19 @@
 package com.adlternative.tinyhacknews.service.impl;
 
 import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
-import com.adlternative.tinyhacknews.entity.User;
 import com.adlternative.tinyhacknews.entity.UserInfo;
 import com.adlternative.tinyhacknews.entity.UserRegister;
+import com.adlternative.tinyhacknews.entity.Users;
 import com.adlternative.tinyhacknews.exception.InternalErrorException;
 import com.adlternative.tinyhacknews.exception.InvalidArgException;
 import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.exception.UsernameExistsException;
-import com.adlternative.tinyhacknews.mapper.UserMapper;
+import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.service.UserService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mysql.cj.util.StringUtils;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -21,13 +23,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-  private final UserMapper userMapper;
+  private final UsersMapper usersMapper;
 
   @Override
   public UserInfo register(UserRegister userRegister) {
-    Date date = new Date();
-    User user =
-        User.builder()
+    LocalDateTime date = LocalDateTime.now();
+    Users user =
+        Users.builder()
             .username(userRegister.getName())
             .email(userRegister.getEmail())
             .password(userRegister.getPassword())
@@ -39,7 +41,7 @@ public class UserServiceImpl implements UserService {
     log.info(user.getUsername());
 
     try {
-      int affectedRows = userMapper.insert(user);
+      int affectedRows = usersMapper.insert(user);
       if (affectedRows == 0) {
         throw new InternalErrorException("Failed to insert user");
       }
@@ -55,8 +57,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserInfo getSingleUserInfo(Long userId) {
     return new UserInfo(
-        userMapper
-            .selectById(userId)
+        Optional.ofNullable(usersMapper.selectById(userId))
             .orElseThrow((() -> new UserNotFoundException("User not found for id: " + userId))));
   }
 
@@ -66,9 +67,8 @@ public class UserServiceImpl implements UserService {
       throw new InvalidArgException("UserId is null");
     }
 
-    User user =
-        userMapper
-            .selectById(userId)
+    Users user =
+        Optional.ofNullable(usersMapper.selectById(userId))
             .orElseThrow((() -> new UserNotFoundException("User not found for id: " + userId)));
 
     if (!StringUtils.isNullOrEmpty(updateUserInfoDTO.getName())) {
@@ -77,9 +77,9 @@ public class UserServiceImpl implements UserService {
     if (!StringUtils.isNullOrEmpty(updateUserInfoDTO.getEmail())) {
       user.setEmail(updateUserInfoDTO.getEmail());
     }
-    user.setUpdatedAt(new Date());
+    user.setUpdatedAt(LocalDateTime.now());
 
-    int affectedRows = userMapper.update(user);
+    int affectedRows = usersMapper.update(user, new QueryWrapper<Users>().eq("id", userId));
     if (affectedRows == 0) {
       throw new InternalErrorException("Failed to update user");
     }
@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void deleteUser(Long id) {
-    int affectedRows = userMapper.delete(id);
+    int affectedRows = usersMapper.delete(new QueryWrapper<Users>().eq("id", id));
     if (affectedRows == 0) {
       throw new UserNotFoundException("User not found for id: " + id);
     }
@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
     }
 
     return new UserInfo(
-        userMapper
+        usersMapper
             .findByUserName(name)
             .orElseThrow((() -> new UserNotFoundException("User not found for name: " + name))));
   }

@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties
+// @MapperScan("com.adlternative.tinyhacknews.mapper")
 public class TinyHacknewsApplication {
 
   public static void main(String[] args) {

@@ -9,21 +9,25 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @author Baomidou
+ * @since 2024-11-24
+ */
 @Getter
 @Setter
 @Builder
-public class News implements Serializable {
+public class Comments implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
   @TableId(value = "id", type = IdType.AUTO)
   private Long id;
 
-  private String title;
-
-  private String url;
-
   private String text;
+
+  private Long parentCommentId;
+
+  private Long newsId;
 
   private Long authorId;
 

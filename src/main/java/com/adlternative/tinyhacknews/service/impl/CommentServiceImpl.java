@@ -1,25 +1,27 @@
 package com.adlternative.tinyhacknews.service.impl;
 
-import com.adlternative.tinyhacknews.entity.Comment;
 import com.adlternative.tinyhacknews.entity.CommentData;
+import com.adlternative.tinyhacknews.entity.Comments;
 import com.adlternative.tinyhacknews.entity.News;
 import com.adlternative.tinyhacknews.entity.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.entity.UpdateCommentInputDTO;
-import com.adlternative.tinyhacknews.entity.User;
 import com.adlternative.tinyhacknews.entity.UserInfo;
+import com.adlternative.tinyhacknews.entity.Users;
 import com.adlternative.tinyhacknews.exception.CommentNotFoundException;
 import com.adlternative.tinyhacknews.exception.DBException;
 import com.adlternative.tinyhacknews.exception.ForbiddenException;
 import com.adlternative.tinyhacknews.exception.InternalErrorException;
 import com.adlternative.tinyhacknews.exception.NewsNotFoundException;
 import com.adlternative.tinyhacknews.exception.UserNotFoundException;
-import com.adlternative.tinyhacknews.mapper.CommentMapper;
+import com.adlternative.tinyhacknews.mapper.CommentsMapper;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
-import com.adlternative.tinyhacknews.mapper.UserMapper;
+import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.service.CommentService;
-import java.util.Date;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,23 +40,20 @@ public class CommentServiceImpl implements CommentService {
    */
   @Override
   public CommentData submitComment(SubmitCommentInputDTO submitCommentInputDTO, Long userId) {
-    User user =
-        userMapper
-            .selectById(userId)
+    Users user =
+        Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
 
     News news =
-        newsMapper
-            .selectById(submitCommentInputDTO.getNewsId())
+        Optional.ofNullable(newsMapper.selectById(submitCommentInputDTO.getNewsId()))
             .orElseThrow(
                 () ->
                     new NewsNotFoundException(
                         "News not found for id: " + submitCommentInputDTO.getNewsId()));
 
     if (submitCommentInputDTO.getParentCommentId() != null) {
-      Comment parentComment =
-          commentMapper
-              .selectById(submitCommentInputDTO.getParentCommentId())
+      Comments parentComment =
+          Optional.ofNullable(commentMapper.selectById(submitCommentInputDTO.getParentCommentId()))
               .orElseThrow(
                   () ->
                       new CommentNotFoundException(
@@ -66,9 +65,9 @@ public class CommentServiceImpl implements CommentService {
       }
     }
 
-    Date date = new Date();
-    Comment comment =
-        Comment.builder()
+    LocalDateTime date = LocalDateTime.now();
+    Comments comment =
+        Comments.builder()
             .text(submitCommentInputDTO.getText())
             .authorId(userId)
             .newsId(news.getId())
@@ -106,23 +105,19 @@ public class CommentServiceImpl implements CommentService {
    */
   @Override
   public void deleteComment(Long id, Long userId) {
-    // TODO: 软删除 || 删除所有子评论
-
-    User user =
-        userMapper
-            .selectById(userId)
+    Users user =
+        Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
 
-    Comment comment =
-        commentMapper
-            .selectById(id)
+    Comments comment =
+        Optional.ofNullable(commentMapper.selectById(id))
             .orElseThrow(() -> new CommentNotFoundException("Comment not found for id: " + id));
 
     if (!Objects.equals(comment.getAuthorId(), user.getId())) {
       throw new ForbiddenException("You do not have permission to delete this comment.");
     }
     try {
-      int affectedRows = commentMapper.delete(id);
+      int affectedRows = commentMapper.delete(new QueryWrapper<Comments>().eq("id", id));
       if (affectedRows == 0) {
         throw new DBException("Failed to delete comment, affectedRows equals to zero");
       }
@@ -144,24 +139,22 @@ public class CommentServiceImpl implements CommentService {
   @Override
   public CommentData modifyComment(
       Long id, UpdateCommentInputDTO updateCommentInputDTO, Long userId) {
-    User user =
-        userMapper
-            .selectById(userId)
+    Users user =
+        Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
 
-    Comment comment =
-        commentMapper
-            .selectById(id)
+    Comments comment =
+        Optional.ofNullable(commentMapper.selectById(id))
             .orElseThrow(() -> new CommentNotFoundException("Comment not found for id: " + id));
 
     if (!Objects.equals(comment.getAuthorId(), user.getId())) {
       throw new ForbiddenException("You do not have permission to modify this comment.");
     }
     comment.setText(updateCommentInputDTO.getText());
-    comment.setUpdatedAt(new Date());
+    comment.setUpdatedAt(LocalDateTime.now());
 
     try {
-      int affectedRows = commentMapper.modify(comment);
+      int affectedRows = commentMapper.update(comment, new QueryWrapper<Comments>().eq("id", id));
       if (affectedRows == 0) {
         throw new DBException("Failed to modify comment, affectedRows equals to zero");
       }
@@ -190,13 +183,11 @@ public class CommentServiceImpl implements CommentService {
   @Override
   public CommentData getComment(Long id, Long userId) {
     // TODO: 一条 sql, join 一下就好
-    Comment comment =
-        commentMapper
-            .selectById(id)
+    Comments comment =
+        Optional.ofNullable(commentMapper.selectById(id))
             .orElseThrow(() -> new CommentNotFoundException("Comment not found for id: " + id));
-    User user =
-        userMapper
-            .selectById(comment.getAuthorId())
+    Users user =
+        Optional.ofNullable(userMapper.selectById(comment.getAuthorId()))
             .orElseThrow(
                 () -> new UserNotFoundException("User not found for id: " + comment.getAuthorId()));
 
@@ -209,16 +200,14 @@ public class CommentServiceImpl implements CommentService {
 
     // 证明新闻存在
     News news =
-        newsMapper
-            .selectById(newsId)
+        Optional.ofNullable(newsMapper.selectById(newsId))
             .orElseThrow(() -> new NewsNotFoundException("News not found for id: " + newsId));
     // TODO: 一条 sql, join 一下就好
     return commentMapper.selectByNewsId(news.getId()).stream()
         .map(
             comment -> {
-              User user =
-                  userMapper
-                      .selectById(comment.getAuthorId())
+              Users user =
+                  Optional.ofNullable(userMapper.selectById(comment.getAuthorId()))
                       .orElseThrow(
                           () ->
                               new UserNotFoundException(
@@ -233,9 +222,8 @@ public class CommentServiceImpl implements CommentService {
     // TODO: userId 用于权限检查
 
     // 证明评论存在
-    Comment parentComment =
-        commentMapper
-            .selectById(commentId)
+    Comments parentComment =
+        Optional.ofNullable(commentMapper.selectById(commentId))
             .orElseThrow(
                 () ->
                     new CommentNotFoundException("Parent comment not found for id: " + commentId));
@@ -243,9 +231,8 @@ public class CommentServiceImpl implements CommentService {
     return commentMapper.selectByParentCommentId(parentComment.getId()).stream()
         .map(
             comment -> {
-              User user =
-                  userMapper
-                      .selectById(comment.getAuthorId())
+              Users user =
+                  Optional.ofNullable(userMapper.selectById(comment.getAuthorId()))
                       .orElseThrow(
                           () ->
                               new UserNotFoundException(
@@ -255,7 +242,7 @@ public class CommentServiceImpl implements CommentService {
         .collect(Collectors.toList());
   }
 
-  private final CommentMapper commentMapper;
+  private final CommentsMapper commentMapper;
   private final NewsMapper newsMapper;
-  private final UserMapper userMapper;
+  private final UsersMapper userMapper;
 }
