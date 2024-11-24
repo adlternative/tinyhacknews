@@ -93,4 +93,18 @@ public class UsersController {
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
     return newsService.getAllNewsOfUser(id, pageNum, pageSize);
   }
+
+  /**
+   * 遍历所有用户，有分页
+   *
+   * @param pageNum
+   * @param pageSize
+   * @return
+   */
+  @GetMapping("/all")
+  public IPage<UserInfo> getAllUsersInfo(
+      @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
+      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
+    return userService.getAllUsersInfo(pageNum, pageSize);
+  }
 }

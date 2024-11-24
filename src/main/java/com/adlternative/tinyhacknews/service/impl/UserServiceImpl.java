@@ -11,6 +11,8 @@ import com.adlternative.tinyhacknews.exception.UsernameExistsException;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mysql.cj.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -104,5 +106,12 @@ public class UserServiceImpl implements UserService {
         usersMapper
             .findByUserName(name)
             .orElseThrow((() -> new UserNotFoundException("User not found for name: " + name))));
+  }
+
+  @Override
+  public IPage<UserInfo> getAllUsersInfo(Long pageNum, Long pageSize) {
+    return usersMapper
+        .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<>())
+        .convert(UserInfo::convertFrom);
   }
 }

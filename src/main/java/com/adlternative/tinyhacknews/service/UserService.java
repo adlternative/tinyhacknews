@@ -3,6 +3,7 @@ package com.adlternative.tinyhacknews.service;
 import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
 import com.adlternative.tinyhacknews.entity.UserInfo;
 import com.adlternative.tinyhacknews.entity.UserRegister;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 public interface UserService {
 
@@ -45,4 +46,13 @@ public interface UserService {
    * @return
    */
   UserInfo findByUserName(String name);
+
+  /**
+   * 获取所有用户信息
+   *
+   * @param pageNum
+   * @param pageSize
+   * @return
+   */
+  IPage<UserInfo> getAllUsersInfo(Long pageNum, Long pageSize);
 }
