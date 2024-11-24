@@ -5,7 +5,7 @@ import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
 import com.adlternative.tinyhacknews.service.NewsService;
-import java.util.List;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -85,10 +85,12 @@ public class NewsController {
    * @return
    */
   @GetMapping("/{id}/comments")
-  public List<CommentData> getComments(
-      @PathVariable(name = "id") Long newsId, @RequestParam(name = "user_id") Long userId) {
-    // TODO: 添加分页参数
-    return commentService.getComments(newsId, userId);
+  public IPage<CommentData> getComments(
+      @PathVariable(name = "id") Long newsId,
+      @RequestParam(name = "user_id") Long userId,
+      @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
+      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
+    return commentService.getComments(newsId, userId, pageNum, pageSize);
   }
 
   /**
@@ -98,9 +100,11 @@ public class NewsController {
    * @return
    */
   @GetMapping("/all")
-  public List<NewsData> getAllNews(@RequestParam(name = "user_id") Long userId) {
-    // TODO: 添加分页参数
-    return newsService.getAllNews(userId);
+  public IPage<NewsData> getAllNews(
+      @RequestParam(name = "user_id") Long userId,
+      @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
+      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
+    return newsService.getAllNews(userId, pageNum, pageSize);
   }
 
   private final NewsService newsService;

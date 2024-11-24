@@ -18,6 +18,8 @@ import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.service.CommentService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -195,7 +197,7 @@ public class CommentServiceImpl implements CommentService {
   }
 
   @Override
-  public List<CommentData> getComments(Long newsId, Long userId) {
+  public IPage<CommentData> getComments(Long newsId, Long userId, Long pageNum, Long pageSize) {
     // TODO: userId 用于权限检查
 
     // 证明新闻存在
@@ -203,8 +205,10 @@ public class CommentServiceImpl implements CommentService {
         Optional.ofNullable(newsMapper.selectById(newsId))
             .orElseThrow(() -> new NewsNotFoundException("News not found for id: " + newsId));
     // TODO: 一条 sql, join 一下就好
-    return commentMapper.selectByNewsId(news.getId()).stream()
-        .map(
+    return commentMapper
+        .selectPage(
+            new Page<>(pageNum, pageSize), new QueryWrapper<Comments>().eq("news_id", news.getId()))
+        .convert(
             comment -> {
               Users user =
                   Optional.ofNullable(userMapper.selectById(comment.getAuthorId()))
@@ -213,8 +217,7 @@ public class CommentServiceImpl implements CommentService {
                               new UserNotFoundException(
                                   "User not found for id: " + comment.getAuthorId()));
               return CommentData.convertFrom(comment, user);
-            })
-        .collect(Collectors.toList());
+            });
   }
 
   @Override

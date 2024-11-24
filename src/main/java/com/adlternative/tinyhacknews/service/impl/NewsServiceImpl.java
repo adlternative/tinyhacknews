@@ -14,11 +14,11 @@ import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -134,23 +134,24 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public List<NewsData> getAllNewsOfUser(Long userId) {
+  public IPage<NewsData> getAllNewsOfUser(Long userId, Long pageNum, Long pageSize) {
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
-    return newsMapper.selectByAuthorId(userId).stream()
-        .map(singleNew -> NewsData.convertFromNews(singleNew, user))
-        .collect(Collectors.toList());
+    return newsMapper
+        .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<News>().eq("author_id", userId))
+        .convert(singleNew -> NewsData.convertFromNews(singleNew, user));
   }
 
   @Override
-  public List<NewsData> getAllNews(Long userId) {
+  public IPage<NewsData> getAllNews(Long userId, Long pageNum, Long pageSize) {
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
-    return newsMapper.selectAll().stream()
-        .map(singleNew -> NewsData.convertFromNews(singleNew, user))
-        .collect(Collectors.toList());
+
+    return newsMapper
+        .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<>())
+        .convert(singleNew -> NewsData.convertFromNews(singleNew, user));
   }
 
   private final NewsMapper newsMapper;

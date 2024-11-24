@@ -2,7 +2,7 @@ package com.adlternative.tinyhacknews.service;
 
 import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
-import java.util.List;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 public interface NewsService {
 
@@ -48,7 +48,7 @@ public interface NewsService {
    * @param userId
    * @return
    */
-  List<NewsData> getAllNewsOfUser(Long userId);
+  IPage<NewsData> getAllNewsOfUser(Long userId, Long pageNum, Long pageSize);
 
   /**
    * 获取所有新闻
@@ -56,5 +56,5 @@ public interface NewsService {
    * @param userId
    * @return
    */
-  List<NewsData> getAllNews(Long userId);
+  IPage<NewsData> getAllNews(Long userId, Long pageNum, Long pageSize);
 }

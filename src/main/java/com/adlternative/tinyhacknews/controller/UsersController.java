@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -69,7 +67,7 @@ public class UsersController {
    */
   @PutMapping
   public UserInfo updateUserInfo(
-          @RequestParam(name = "id") Long id, @RequestBody UpdateUserInfoDTO updateUserInfoDTO) {
+      @RequestParam(name = "id") Long id, @RequestBody UpdateUserInfoDTO updateUserInfoDTO) {
     return userService.updateUserInfo(id, updateUserInfoDTO);
   }
 
@@ -89,8 +87,10 @@ public class UsersController {
    * @param id
    */
   @GetMapping("/{id}/news")
-  public List<NewsData> getAllNewsOfUser(@PathVariable(name = "id") Long id) {
-    // TODO: 添加分页逻辑
-    return newsService.getAllNewsOfUser(id);
+  public IPage<NewsData> getAllNewsOfUser(
+      @PathVariable(name = "id") Long id,
+      @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
+      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
+    return newsService.getAllNewsOfUser(id, pageNum, pageSize);
   }
 }
