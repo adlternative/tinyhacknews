@@ -1,1 +1,0 @@
-ALTER TABLE `Comments` ADD COLUMN `is_deleted` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否删除';
