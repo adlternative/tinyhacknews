@@ -1,5 +1,6 @@
 package com.adlternative.tinyhacknews.service.impl;
 
+import com.adlternative.tinyhacknews.context.RequestContext;
 import com.adlternative.tinyhacknews.entity.News;
 import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
@@ -28,7 +29,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
   @Override
-  public NewsData submit(Long userId, SubmitNewsInputDTO submitNewsInputDTO) {
+  public NewsData submit(SubmitNewsInputDTO submitNewsInputDTO) {
+    Long userId = RequestContext.getUserId();
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
@@ -63,7 +65,8 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public void deleteNews(Long id, Long userId) {
+  public void deleteNews(Long id) {
+    Long userId = RequestContext.getUserId();
     // TODO: 校验用户权限
     News news =
         Optional.ofNullable(newsMapper.selectById(id))
@@ -84,7 +87,7 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public NewsData getNews(Long id, Long userId) {
+  public NewsData getNews(Long id) {
     // TODO: 校验用户权限
     News news =
         Optional.ofNullable(newsMapper.selectById(id))
@@ -104,7 +107,8 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public NewsData changeNews(Long id, Long userId, SubmitNewsInputDTO submitNewsInputDTO) {
+  public NewsData changeNews(Long id, SubmitNewsInputDTO submitNewsInputDTO) {
+    Long userId = RequestContext.getUserId();
     News news =
         Optional.ofNullable(newsMapper.selectById(id))
             .orElseThrow(() -> new NewsNotFoundException("Failed to get news, news not found"));

@@ -1,5 +1,6 @@
 package com.adlternative.tinyhacknews.service.impl;
 
+import com.adlternative.tinyhacknews.context.RequestContext;
 import com.adlternative.tinyhacknews.entity.CommentData;
 import com.adlternative.tinyhacknews.entity.Comments;
 import com.adlternative.tinyhacknews.entity.News;
@@ -37,11 +38,11 @@ public class CommentServiceImpl implements CommentService {
    * 提交评论
    *
    * @param submitCommentInputDTO
-   * @param userId
    * @return
    */
   @Override
-  public CommentData submitComment(SubmitCommentInputDTO submitCommentInputDTO, Long userId) {
+  public CommentData submitComment(SubmitCommentInputDTO submitCommentInputDTO) {
+    Long userId = RequestContext.getUserId();
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
@@ -103,10 +104,10 @@ public class CommentServiceImpl implements CommentService {
    * 删除评论
    *
    * @param id
-   * @param userId
    */
   @Override
-  public void deleteComment(Long id, Long userId) {
+  public void deleteComment(Long id) {
+    Long userId = RequestContext.getUserId();
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
@@ -136,11 +137,10 @@ public class CommentServiceImpl implements CommentService {
    *
    * @param id
    * @param updateCommentInputDTO
-   * @param userId
    */
   @Override
-  public CommentData modifyComment(
-      Long id, UpdateCommentInputDTO updateCommentInputDTO, Long userId) {
+  public CommentData modifyComment(Long id, UpdateCommentInputDTO updateCommentInputDTO) {
+    Long userId = RequestContext.getUserId();
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
@@ -183,7 +183,7 @@ public class CommentServiceImpl implements CommentService {
    * @param userId
    */
   @Override
-  public CommentData getComment(Long id, Long userId) {
+  public CommentData getComment(Long id) {
     // TODO: 一条 sql, join 一下就好
     Comments comment =
         Optional.ofNullable(commentMapper.selectById(id))
@@ -197,9 +197,7 @@ public class CommentServiceImpl implements CommentService {
   }
 
   @Override
-  public IPage<CommentData> getComments(Long newsId, Long userId, Long pageNum, Long pageSize) {
-    // TODO: userId 用于权限检查
-
+  public IPage<CommentData> getComments(Long newsId, Long pageNum, Long pageSize) {
     // 证明新闻存在
     News news =
         Optional.ofNullable(newsMapper.selectById(newsId))
@@ -221,9 +219,7 @@ public class CommentServiceImpl implements CommentService {
   }
 
   @Override
-  public List<CommentData> getSubComments(Long commentId, Long userId) {
-    // TODO: userId 用于权限检查
-
+  public List<CommentData> getSubComments(Long commentId) {
     // 证明评论存在
     Comments parentComment =
         Optional.ofNullable(commentMapper.selectById(commentId))

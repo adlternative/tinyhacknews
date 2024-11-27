@@ -15,7 +15,7 @@ public interface CommentService {
    * @param userId
    * @return
    */
-  CommentData submitComment(SubmitCommentInputDTO submitCommentInputDTO, Long userId);
+  CommentData submitComment(SubmitCommentInputDTO submitCommentInputDTO);
 
   /**
    * 删除评论
@@ -23,7 +23,7 @@ public interface CommentService {
    * @param id
    * @param userId
    */
-  void deleteComment(Long id, Long userId);
+  void deleteComment(Long id);
 
   /**
    * 修改评论
@@ -32,7 +32,7 @@ public interface CommentService {
    * @param updateCommentInputDTO
    * @param userId
    */
-  CommentData modifyComment(Long id, UpdateCommentInputDTO updateCommentInputDTO, Long userId);
+  CommentData modifyComment(Long id, UpdateCommentInputDTO updateCommentInputDTO);
 
   /**
    * 获取评论内容
@@ -40,7 +40,7 @@ public interface CommentService {
    * @param id
    * @param userId
    */
-  CommentData getComment(Long id, Long userId);
+  CommentData getComment(Long id);
 
   /**
    * 获取某个新闻下的所有评论
@@ -49,7 +49,7 @@ public interface CommentService {
    * @param userId
    * @return
    */
-  IPage<CommentData> getComments(Long newsId, Long userId, Long pageNum, Long pageSize);
+  IPage<CommentData> getComments(Long newsId, Long pageNum, Long pageSize);
 
-  List<CommentData> getSubComments(Long commentId, Long userId);
+  List<CommentData> getSubComments(Long commentId);
 }

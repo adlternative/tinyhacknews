@@ -26,11 +26,10 @@ public interface UserService {
   /**
    * 更新用户信息
    *
-   * @param userId
    * @param userInfo
    * @return
    */
-  UserInfo updateUserInfo(Long userId, UpdateUserInfoDTO userInfo);
+  UserInfo updateUserInfo(UpdateUserInfoDTO userInfo);
 
   /**
    * 删除用户

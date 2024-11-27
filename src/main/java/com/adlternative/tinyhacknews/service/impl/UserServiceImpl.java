@@ -1,5 +1,6 @@
 package com.adlternative.tinyhacknews.service.impl;
 
+import com.adlternative.tinyhacknews.context.RequestContext;
 import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
 import com.adlternative.tinyhacknews.entity.UserInfo;
 import com.adlternative.tinyhacknews.entity.UserRegister;
@@ -66,7 +67,8 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfo updateUserInfo(Long userId, UpdateUserInfoDTO updateUserInfoDTO) {
+  public UserInfo updateUserInfo(UpdateUserInfoDTO updateUserInfoDTO) {
+    Long userId = RequestContext.getUserId();
     if (userId == null) {
       throw new InvalidArgException("UserId is null");
     }
@@ -92,6 +94,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void deleteUser(Long id) {
+    // TODO: admin 才有删除权限
     int affectedRows = usersMapper.delete(new QueryWrapper<Users>().eq("id", id));
     if (affectedRows == 0) {
       throw new UserNotFoundException("User not found for id: " + id);

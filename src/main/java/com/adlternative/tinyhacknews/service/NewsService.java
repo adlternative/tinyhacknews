@@ -13,24 +13,22 @@ public interface NewsService {
    * @param submitNewsInputDTO
    * @return
    */
-  NewsData submit(Long userId, SubmitNewsInputDTO submitNewsInputDTO);
+  NewsData submit(SubmitNewsInputDTO submitNewsInputDTO);
 
   /**
    * 删除一条新闻
    *
    * @param id
-   * @param userId
    */
-  void deleteNews(Long id, Long userId);
+  void deleteNews(Long id);
 
   /**
    * 获取一条新闻
    *
    * @param id
-   * @param userId
    * @return
    */
-  NewsData getNews(Long id, Long userId);
+  NewsData getNews(Long id);
 
   /**
    * 修改一条新闻
@@ -40,7 +38,7 @@ public interface NewsService {
    * @param submitNewsInputDTO
    * @return
    */
-  NewsData changeNews(Long id, Long userId, SubmitNewsInputDTO submitNewsInputDTO);
+  NewsData changeNews(Long id, SubmitNewsInputDTO submitNewsInputDTO);
 
   /**
    * 获取用户所有新闻

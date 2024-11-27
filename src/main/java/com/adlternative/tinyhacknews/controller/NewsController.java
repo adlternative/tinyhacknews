@@ -25,15 +25,12 @@ public class NewsController {
   /**
    * 提交新闻
    *
-   * @param userId
    * @param submitNewsInputDTO
    * @return
    */
   @PostMapping
-  public NewsData submitNews(
-      @RequestParam(name = "user_id") Long userId,
-      @RequestBody SubmitNewsInputDTO submitNewsInputDTO) {
-    return newsService.submit(userId, submitNewsInputDTO);
+  public NewsData submitNews(@RequestBody SubmitNewsInputDTO submitNewsInputDTO) {
+    return newsService.submit(submitNewsInputDTO);
   }
 
   /**
@@ -46,51 +43,43 @@ public class NewsController {
    */
   @PutMapping("/{id}")
   public NewsData changeNews(
-      @PathVariable(name = "id") Long id,
-      @RequestParam(name = "user_id") Long userId,
-      @RequestBody SubmitNewsInputDTO submitNewsInputDTO) {
-    return newsService.changeNews(id, userId, submitNewsInputDTO);
+      @PathVariable(name = "id") Long id, @RequestBody SubmitNewsInputDTO submitNewsInputDTO) {
+    return newsService.changeNews(id, submitNewsInputDTO);
   }
 
   /**
    * 查看某条新闻内容
    *
    * @param id
-   * @param userId
    * @return
    */
   @GetMapping("/{id}")
-  public NewsData getNews(
-      @PathVariable(name = "id") Long id, @RequestParam(name = "user_id") Long userId) {
-    return newsService.getNews(id, userId);
+  public NewsData getNews(@PathVariable(name = "id") Long id) {
+    return newsService.getNews(id);
   }
 
   /**
    * 删除新闻
    *
    * @param id
-   * @param userId
    */
   @DeleteMapping("/{id}")
-  public void deleteNews(
-      @PathVariable(name = "id") Long id, @RequestParam(name = "user_id") Long userId) {
-    newsService.deleteNews(id, userId);
+  public void deleteNews(@PathVariable(name = "id") Long id) {
+    newsService.deleteNews(id);
   }
 
   /**
    * 获取某条新闻的所有评论
    *
    * @param newsId
-   * @param userId
    * @return
    */
   @GetMapping("/{id}/comments")
   public IPage<CommentData> getComments(
       @PathVariable(name = "id") Long newsId,
-      @RequestParam(name = "user_id") Long userId,
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
-    return commentService.getComments(newsId, userId, pageNum, pageSize);
+    return commentService.getComments(newsId, pageNum, pageSize);
   }
 
   /**

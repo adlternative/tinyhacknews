@@ -67,14 +67,12 @@ public class UsersController {
   /**
    * 更新用户信息
    *
-   * @param id
    * @param updateUserInfoDTO
    * @return
    */
   @PutMapping
-  public UserInfo updateUserInfo(
-      @RequestParam(name = "id") Long id, @RequestBody UpdateUserInfoDTO updateUserInfoDTO) {
-    return userService.updateUserInfo(id, updateUserInfoDTO);
+  public UserInfo updateUserInfo(@RequestBody UpdateUserInfoDTO updateUserInfoDTO) {
+    return userService.updateUserInfo(updateUserInfoDTO);
   }
 
   /**
