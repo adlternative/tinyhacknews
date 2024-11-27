@@ -1,5 +1,6 @@
 package com.adlternative.tinyhacknews.controller;
 
+import com.adlternative.tinyhacknews.auth.JwtUtils;
 import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
 import com.adlternative.tinyhacknews.entity.UserInfo;
@@ -7,7 +8,12 @@ import com.adlternative.tinyhacknews.entity.UserRegister;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.adlternative.tinyhacknews.service.UserService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.time.Duration;
+import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -106,5 +112,34 @@ public class UsersController {
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
     return userService.getAllUsersInfo(pageNum, pageSize);
+  }
+
+  /**
+   * 用户登录
+   *
+   * @param username
+   * @param password
+   * @param response
+   * @return
+   */
+  @PostMapping("/login")
+  public ResponseEntity<UserInfo> login(
+      @RequestParam String username, @RequestParam String password, HttpServletResponse response) {
+    UserInfo userInfo = userService.validateUser(username, password);
+    // 假设用户名和密码验证成功，生成 JWT
+    String token = JwtUtils.generateToken(userInfo.getId(), username);
+
+    ResponseCookie cookie =
+        ResponseCookie.from("jwt", token)
+            .httpOnly(false) // 禁止js读取
+            .secure(false) // 在http下也传输
+            .domain("localhost") // 域名
+            .path("/") // path
+            .maxAge(Duration.ofDays(1))
+            .build();
+
+    response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+    return ResponseEntity.ok(userInfo);
   }
 }

@@ -55,4 +55,13 @@ public interface UserService {
    * @return
    */
   IPage<UserInfo> getAllUsersInfo(Long pageNum, Long pageSize);
+
+  /**
+   * 验证用户登录信息
+   *
+   * @param username
+   * @param password
+   * @return
+   */
+  UserInfo validateUser(String username, String password);
 }

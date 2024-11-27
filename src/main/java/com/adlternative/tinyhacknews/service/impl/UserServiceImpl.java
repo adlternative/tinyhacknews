@@ -6,6 +6,7 @@ import com.adlternative.tinyhacknews.entity.UserRegister;
 import com.adlternative.tinyhacknews.entity.Users;
 import com.adlternative.tinyhacknews.exception.InternalErrorException;
 import com.adlternative.tinyhacknews.exception.InvalidArgException;
+import com.adlternative.tinyhacknews.exception.UnauthorizedException;
 import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.exception.UsernameExistsException;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
@@ -15,6 +16,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mysql.cj.util.StringUtils;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -113,5 +115,21 @@ public class UserServiceImpl implements UserService {
     return usersMapper
         .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<>())
         .convert(UserInfo::convertFrom);
+  }
+
+  @Override
+  public UserInfo validateUser(String username, String password) {
+    // TODO: 密码需要加密
+    if (StringUtils.isNullOrEmpty(username) || StringUtils.isNullOrEmpty(password)) {
+      throw new InvalidArgException("Username or password is empty");
+    }
+    Users user =
+        usersMapper
+            .findByUserName(username)
+            .orElseThrow(() -> new UserNotFoundException("User not found for name: " + username));
+    if (!Objects.equals(user.getPassword(), password)) {
+      throw new UnauthorizedException("Username or password is incorrect");
+    }
+    return UserInfo.convertFrom(user);
   }
 }
