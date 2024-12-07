@@ -37,7 +37,6 @@ public class NewsController {
    * 修改新闻内容
    *
    * @param id
-   * @param userId
    * @param submitNewsInputDTO
    * @return
    */
