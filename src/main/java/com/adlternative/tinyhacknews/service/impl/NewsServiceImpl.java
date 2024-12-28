@@ -148,14 +148,19 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public IPage<NewsData> getAllNews(Long userId, Long pageNum, Long pageSize) {
-    Users user =
-        Optional.ofNullable(userMapper.selectById(userId))
-            .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
-
+  public IPage<NewsData> getAllNews(Long pageNum, Long pageSize) {
     return newsMapper
         .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<>())
-        .convert(singleNew -> NewsData.convertFromNews(singleNew, user));
+        .convert(
+            singleNew -> {
+              Long userId = singleNew.getAuthorId();
+              Users user =
+                  Optional.ofNullable(userMapper.selectById(userId))
+                      .orElseThrow(
+                          () -> new UserNotFoundException("Failed to get user, user not found"));
+
+              return NewsData.convertFromNews(singleNew, user);
+            });
   }
 
   private final NewsMapper newsMapper;

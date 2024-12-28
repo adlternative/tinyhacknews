@@ -51,8 +51,7 @@ public interface NewsService {
   /**
    * 获取所有新闻
    *
-   * @param userId
    * @return
    */
-  IPage<NewsData> getAllNews(Long userId, Long pageNum, Long pageSize);
+  IPage<NewsData> getAllNews(Long pageNum, Long pageSize);
 }

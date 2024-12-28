@@ -84,15 +84,13 @@ public class NewsController {
   /**
    * 获取所有新闻
    *
-   * @param userId
    * @return
    */
   @GetMapping("/all")
   public IPage<NewsData> getAllNews(
-      @RequestParam(name = "user_id") Long userId,
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
-    return newsService.getAllNews(userId, pageNum, pageSize);
+    return newsService.getAllNews(pageNum, pageSize);
   }
 
   private final NewsService newsService;
