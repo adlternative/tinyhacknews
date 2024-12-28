@@ -4,6 +4,7 @@ import com.adlternative.tinyhacknews.auth.JwtUtils;
 import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
 import com.adlternative.tinyhacknews.entity.UserInfo;
+import com.adlternative.tinyhacknews.entity.UserLoginInputDTO;
 import com.adlternative.tinyhacknews.entity.UserRegister;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.adlternative.tinyhacknews.service.UserService;
@@ -115,17 +116,17 @@ public class UsersController {
   /**
    * 用户登录
    *
-   * @param username
-   * @param password
+   * @param userLoginInputDTO
    * @param response
    * @return
    */
   @PostMapping("/login")
   public ResponseEntity<UserInfo> login(
-      @RequestParam String username, @RequestParam String password, HttpServletResponse response) {
-    UserInfo userInfo = userService.validateUser(username, password);
+      @RequestBody UserLoginInputDTO userLoginInputDTO, HttpServletResponse response) {
+    UserInfo userInfo =
+        userService.validateUser(userLoginInputDTO.getUsername(), userLoginInputDTO.getPassword());
     // 假设用户名和密码验证成功，生成 JWT
-    String token = JwtUtils.generateToken(userInfo.getId(), username);
+    String token = JwtUtils.generateToken(userInfo.getId(), userLoginInputDTO.getUsername());
 
     ResponseCookie cookie =
         ResponseCookie.from("jwt", token)
