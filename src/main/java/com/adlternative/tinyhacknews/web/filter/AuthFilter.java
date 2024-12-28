@@ -100,10 +100,14 @@ public class AuthFilter implements Filter {
   private boolean isWhiteListUrl(HttpServletRequest request) {
     String requestURI = request.getRequestURI();
     for (String url : WHITE_LIST_URLS) {
-      if (Objects.equals(request.getMethod(), HttpMethod.POST.name()) && requestURI.equals(url)) {
+      // 后面应该改造为权限注解
+      if ((Objects.equals(request.getMethod(), HttpMethod.POST.name())
+              || Objects.equals(request.getMethod(), HttpMethod.OPTIONS.name()))
+          && requestURI.equals(url)) {
         return true;
       }
     }
+    log.info("requestURI: {}, request.getMethod(): {}", requestURI, request.getMethod());
     return false;
   }
 
