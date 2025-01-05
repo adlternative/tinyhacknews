@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.controller;
 
 import com.adlternative.tinyhacknews.auth.JwtUtils;
+import com.adlternative.tinyhacknews.context.RequestContext;
 import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
 import com.adlternative.tinyhacknews.entity.UserInfo;
@@ -12,6 +13,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import java.time.Duration;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UsersController {
   private final UserService userService;
   private final NewsService newsService;
@@ -140,5 +143,15 @@ public class UsersController {
     response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
     return ResponseEntity.ok(userInfo);
+  }
+
+  @PostMapping("/logout")
+  public ResponseEntity<Void> logout() {
+    // TODO: 也许应该记录用户登录登出状态之类的...
+    Long userId = RequestContext.getUserId();
+    UserInfo userInfo = userService.getSingleUserInfo(userId);
+    log.info(String.format("User logout: %s", userInfo.getName()));
+
+    return ResponseEntity.ok().build();
   }
 }
