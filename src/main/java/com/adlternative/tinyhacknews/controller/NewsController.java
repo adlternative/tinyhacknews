@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.controller;
 
 import com.adlternative.tinyhacknews.entity.CommentData;
+import com.adlternative.tinyhacknews.entity.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
@@ -89,8 +90,9 @@ public class NewsController {
   @GetMapping("/all")
   public IPage<NewsData> getAllNews(
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
-      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
-    return newsService.getAllNews(pageNum, pageSize);
+      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize,
+      @RequestParam(name = "order", defaultValue = "DATE_DESC") ListAllNewsOrderEnum order) {
+    return newsService.getAllNews(pageNum, pageSize, order);
   }
 
   private final NewsService newsService;

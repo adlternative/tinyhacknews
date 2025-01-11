@@ -1,5 +1,6 @@
 package com.adlternative.tinyhacknews.service;
 
+import com.adlternative.tinyhacknews.entity.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -53,5 +54,5 @@ public interface NewsService {
    *
    * @return
    */
-  IPage<NewsData> getAllNews(Long pageNum, Long pageSize);
+  IPage<NewsData> getAllNews(Long pageNum, Long pageSize, ListAllNewsOrderEnum order);
 }

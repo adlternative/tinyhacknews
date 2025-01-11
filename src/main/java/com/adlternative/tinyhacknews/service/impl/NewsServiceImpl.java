@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.service.impl;
 
 import com.adlternative.tinyhacknews.context.RequestContext;
+import com.adlternative.tinyhacknews.entity.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.entity.News;
 import com.adlternative.tinyhacknews.entity.NewsData;
 import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
@@ -148,9 +149,10 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public IPage<NewsData> getAllNews(Long pageNum, Long pageSize) {
+  public IPage<NewsData> getAllNews(Long pageNum, Long pageSize, ListAllNewsOrderEnum order) {
+    // TODO: order by point
     return newsMapper
-        .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<>())
+        .selectAllInOrder(new Page<>(pageNum, pageSize), order)
         .convert(
             singleNew -> {
               Long userId = singleNew.getAuthorId();
