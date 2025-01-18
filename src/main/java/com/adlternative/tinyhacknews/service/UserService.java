@@ -1,7 +1,9 @@
 package com.adlternative.tinyhacknews.service;
 
+import com.adlternative.tinyhacknews.entity.SimpleUserInfoOutputDTO;
 import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
 import com.adlternative.tinyhacknews.entity.UserInfo;
+import com.adlternative.tinyhacknews.entity.UserInfoOutputDTO;
 import com.adlternative.tinyhacknews.entity.UserRegister;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
@@ -21,7 +23,7 @@ public interface UserService {
    * @param userId
    * @return
    */
-  UserInfo getSingleUserInfo(Long userId);
+  SimpleUserInfoOutputDTO getSingleUserInfo(Long userId);
 
   /**
    * 更新用户信息
@@ -44,7 +46,7 @@ public interface UserService {
    * @param name
    * @return
    */
-  UserInfo findByUserName(String name);
+  SimpleUserInfoOutputDTO findByUserName(String name);
 
   /**
    * 获取所有用户信息
@@ -53,7 +55,7 @@ public interface UserService {
    * @param pageSize
    * @return
    */
-  IPage<UserInfo> getAllUsersInfo(Long pageNum, Long pageSize);
+  IPage<SimpleUserInfoOutputDTO> getAllUsersInfo(Long pageNum, Long pageSize);
 
   /**
    * 验证用户登录信息
@@ -63,4 +65,11 @@ public interface UserService {
    * @return
    */
   UserInfo validateUser(String username, String password);
+
+  /**
+   * 获取当前用户信息
+   *
+   * @return
+   */
+  UserInfoOutputDTO getCurrentUserInfo();
 }

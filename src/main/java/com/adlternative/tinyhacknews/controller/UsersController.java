@@ -3,8 +3,10 @@ package com.adlternative.tinyhacknews.controller;
 import com.adlternative.tinyhacknews.auth.JwtUtils;
 import com.adlternative.tinyhacknews.context.RequestContext;
 import com.adlternative.tinyhacknews.entity.NewsData;
+import com.adlternative.tinyhacknews.entity.SimpleUserInfoOutputDTO;
 import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
 import com.adlternative.tinyhacknews.entity.UserInfo;
+import com.adlternative.tinyhacknews.entity.UserInfoOutputDTO;
 import com.adlternative.tinyhacknews.entity.UserLoginInputDTO;
 import com.adlternative.tinyhacknews.entity.UserRegister;
 import com.adlternative.tinyhacknews.service.NewsService;
@@ -53,8 +55,18 @@ public class UsersController {
    * @return
    */
   @GetMapping("/{id}")
-  public UserInfo getUserInfo(@PathVariable("id") Long id) {
+  public SimpleUserInfoOutputDTO getUserInfo(@PathVariable("id") Long id) {
     return userService.getSingleUserInfo(id);
+  }
+
+  /**
+   * 获取当前用户信息
+   *
+   * @return
+   */
+  @GetMapping("/me")
+  public UserInfoOutputDTO getCurrentUserInfo() {
+    return userService.getCurrentUserInfo();
   }
 
   /**
@@ -64,7 +76,7 @@ public class UsersController {
    * @return
    */
   @GetMapping
-  public UserInfo getUserInfoByUserName(@RequestParam(name = "name") String name) {
+  public SimpleUserInfoOutputDTO getUserInfoByUserName(@RequestParam(name = "name") String name) {
     return userService.findByUserName(name);
   }
 
@@ -110,7 +122,7 @@ public class UsersController {
    * @return
    */
   @GetMapping("/all")
-  public IPage<UserInfo> getAllUsersInfo(
+  public IPage<SimpleUserInfoOutputDTO> getAllUsersInfo(
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
     return userService.getAllUsersInfo(pageNum, pageSize);
@@ -149,7 +161,7 @@ public class UsersController {
   public ResponseEntity<Void> logout() {
     // TODO: 也许应该记录用户登录登出状态之类的...
     Long userId = RequestContext.getUserId();
-    UserInfo userInfo = userService.getSingleUserInfo(userId);
+    SimpleUserInfoOutputDTO userInfo = userService.getSingleUserInfo(userId);
     log.info(String.format("User logout: %s", userInfo.getName()));
 
     return ResponseEntity.ok().build();

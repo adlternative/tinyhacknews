@@ -1,8 +1,10 @@
 package com.adlternative.tinyhacknews.service.impl;
 
 import com.adlternative.tinyhacknews.context.RequestContext;
+import com.adlternative.tinyhacknews.entity.SimpleUserInfoOutputDTO;
 import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
 import com.adlternative.tinyhacknews.entity.UserInfo;
+import com.adlternative.tinyhacknews.entity.UserInfoOutputDTO;
 import com.adlternative.tinyhacknews.entity.UserRegister;
 import com.adlternative.tinyhacknews.entity.Users;
 import com.adlternative.tinyhacknews.exception.InternalErrorException;
@@ -60,7 +62,11 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfo getSingleUserInfo(Long userId) {
+  public SimpleUserInfoOutputDTO getSingleUserInfo(Long userId) {
+    return SimpleUserInfoOutputDTO.from(getUserInfo(userId));
+  }
+
+  private UserInfo getUserInfo(Long userId) {
     return new UserInfo(
         Optional.ofNullable(usersMapper.selectById(userId))
             .orElseThrow((() -> new UserNotFoundException("User not found for id: " + userId))));
@@ -102,22 +108,26 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfo findByUserName(String name) {
+  public SimpleUserInfoOutputDTO findByUserName(String name) {
     if (StringUtils.isNullOrEmpty(name)) {
       throw new InvalidArgException("Name is empty");
     }
 
-    return new UserInfo(
-        usersMapper
-            .findByUserName(name)
-            .orElseThrow((() -> new UserNotFoundException("User not found for name: " + name))));
+    UserInfo userInfo =
+        new UserInfo(
+            usersMapper
+                .findByUserName(name)
+                .orElseThrow(
+                    (() -> new UserNotFoundException("User not found for name: " + name))));
+    return SimpleUserInfoOutputDTO.from(userInfo);
   }
 
   @Override
-  public IPage<UserInfo> getAllUsersInfo(Long pageNum, Long pageSize) {
+  public IPage<SimpleUserInfoOutputDTO> getAllUsersInfo(Long pageNum, Long pageSize) {
     return usersMapper
         .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<>())
-        .convert(UserInfo::convertFrom);
+        .convert(UserInfo::convertFrom)
+        .convert(SimpleUserInfoOutputDTO::from);
   }
 
   @Override
@@ -134,5 +144,10 @@ public class UserServiceImpl implements UserService {
       throw new UnauthorizedException("Username or password is incorrect");
     }
     return UserInfo.convertFrom(user);
+  }
+
+  @Override
+  public UserInfoOutputDTO getCurrentUserInfo() {
+    return UserInfoOutputDTO.from(getUserInfo(RequestContext.getUserId()));
   }
 }
