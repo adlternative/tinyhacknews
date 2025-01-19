@@ -10,8 +10,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author Baomidou
- * @since 2024-11-24
+ * @author adlternative
+ * @since 2025-01-19
  */
 @Getter
 @Setter
@@ -34,5 +34,8 @@ public class Users implements Serializable {
   private LocalDateTime updatedAt;
 
   /** 是否被删除 */
-  @TableLogic private Byte isDeleted;
+  @TableLogic private Boolean isDeleted;
+
+  /** 个人说明 */
+  private String about;
 }

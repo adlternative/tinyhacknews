@@ -24,11 +24,14 @@ public class UserInfo {
 
   LocalDateTime createdAt;
 
+  String about;
+
   public UserInfo(Users user) {
     id = user.getId();
     name = user.getUsername();
     email = user.getEmail();
     createdAt = user.getCreatedAt();
+    about = user.getAbout();
   }
 
   public static UserInfo convertFrom(Users user) {
@@ -37,6 +40,7 @@ public class UserInfo {
         .name(user.getUsername())
         .email(user.getEmail())
         .createdAt(user.getCreatedAt())
+        .about(user.getAbout())
         .build();
   }
 }

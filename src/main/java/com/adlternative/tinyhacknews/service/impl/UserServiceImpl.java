@@ -89,6 +89,7 @@ public class UserServiceImpl implements UserService {
     if (!StringUtils.isNullOrEmpty(updateUserInfoDTO.getEmail())) {
       user.setEmail(updateUserInfoDTO.getEmail());
     }
+    user.setAbout(updateUserInfoDTO.getAbout());
     user.setUpdatedAt(LocalDateTime.now());
 
     int affectedRows = usersMapper.update(user, new QueryWrapper<Users>().eq("id", userId));

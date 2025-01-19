@@ -31,7 +31,7 @@ public class SimpleUserInfoOutputDTO {
         .id(userInfo.getId())
         .name(userInfo.getName())
         .createdAt(userInfo.getCreatedAt())
-        .about("")
+        .about(userInfo.getAbout())
         .karma(0L)
         .build();
   }

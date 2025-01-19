@@ -19,7 +19,7 @@ public class UserInfoOutputDTO extends SimpleUserInfoOutputDTO {
         .id(userInfo.getId())
         .name(userInfo.getName())
         .createdAt(userInfo.getCreatedAt())
-        .about("")
+        .about(userInfo.getAbout())
         .karma(0L)
         .email(userInfo.getEmail())
         .build();
