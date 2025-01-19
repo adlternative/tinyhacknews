@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -36,15 +36,15 @@ public class Users implements Serializable {
   private String email;
 
   @TableField("created_at")
-  private LocalDateTime createdAt;
+  private Date createdAt;
 
   @TableField("updated_at")
-  private LocalDateTime updatedAt;
+  private Date updatedAt;
 
   /** 是否被删除 */
   @TableField("is_deleted")
   @TableLogic
-  private Byte deleted;
+  private Byte isDeleted;
 
   /** 个人说明 */
   @TableField("about")

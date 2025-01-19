@@ -18,7 +18,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mysql.cj.util.StringUtils;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserInfo register(UserRegisterInputDTO userRegisterInputDTO) {
-    LocalDateTime date = LocalDateTime.now();
+    Date date = new Date();
     Users user =
         new Users()
             .setUsername(userRegisterInputDTO.getName())
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
       user.setEmail(updateUserInfoInputDTO.getEmail());
     }
     user.setAbout(updateUserInfoInputDTO.getAbout());
-    user.setUpdatedAt(LocalDateTime.now());
+    user.setUpdatedAt(new Date());
 
     int affectedRows = usersMapper.update(user, new QueryWrapper<Users>().eq("id", userId));
     if (affectedRows == 0) {

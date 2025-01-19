@@ -21,7 +21,7 @@ import com.adlternative.tinyhacknews.service.CommentService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -68,7 +68,7 @@ public class CommentServiceImpl implements CommentService {
       }
     }
 
-    LocalDateTime date = LocalDateTime.now();
+    Date date = new Date();
     Comments comment =
         new Comments()
             .setText(submitCommentInputDTO.getText())
@@ -152,7 +152,7 @@ public class CommentServiceImpl implements CommentService {
       throw new ForbiddenException("You do not have permission to modify this comment.");
     }
     comment.setText(updateCommentInputDTO.getText());
-    comment.setUpdatedAt(LocalDateTime.now());
+    comment.setUpdatedAt(new Date());
 
     try {
       int affectedRows = commentMapper.update(comment, new QueryWrapper<Comments>().eq("id", id));

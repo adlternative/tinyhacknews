@@ -18,7 +18,7 @@ import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class NewsServiceImpl implements NewsService {
         Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
 
-    LocalDateTime date = LocalDateTime.now();
+    Date date = new Date();
     News news =
         new News()
             .setTitle(submitNewsInputDTO.getTitle())
@@ -125,7 +125,7 @@ public class NewsServiceImpl implements NewsService {
     news.setTitle(submitNewsInputDTO.getTitle());
     news.setText(submitNewsInputDTO.getText());
     news.setUrl(submitNewsInputDTO.getUrl());
-    news.setUpdatedAt(LocalDateTime.now());
+    news.setUpdatedAt(new Date());
     try {
       int affectedRows = newsMapper.update(news, new QueryWrapper<News>().eq("id", id));
       if (affectedRows == 0) {

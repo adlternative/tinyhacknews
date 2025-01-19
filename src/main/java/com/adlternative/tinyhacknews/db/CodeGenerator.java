@@ -2,6 +2,7 @@ package com.adlternative.tinyhacknews.db;
 
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
+import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import java.nio.file.Paths;
 import java.util.Collections;
 
@@ -16,6 +17,7 @@ public class CodeGenerator {
                     .author("adlternative")
                     .outputDir(Paths.get(projectPath) + "/src/main/java")
                     .disableOpenDir()
+                    .dateType(DateType.ONLY_DATE)
                     .commentDate("yyyy-MM-dd"))
         .packageConfig(
             builder ->

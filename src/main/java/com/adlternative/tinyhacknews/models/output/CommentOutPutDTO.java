@@ -3,7 +3,7 @@ package com.adlternative.tinyhacknews.models.output;
 import com.adlternative.tinyhacknews.entity.Comments;
 import com.adlternative.tinyhacknews.entity.Users;
 import com.adlternative.tinyhacknews.models.UserInfo;
-import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,9 +18,9 @@ public class CommentOutPutDTO {
 
   private Long parentCommentId;
 
-  private LocalDateTime createdAt;
+  private Date createdAt;
 
-  private LocalDateTime updatedAt;
+  private Date updatedAt;
 
   public static CommentOutPutDTO convertFrom(Comments comment, Users user) {
     return CommentOutPutDTO.builder()
