@@ -1,9 +1,9 @@
-package com.adlternative.tinyhacknews.entity;
+package com.adlternative.tinyhacknews.models.input;
 
 import lombok.Data;
 
 @Data
-public class UpdateUserInfoDTO {
+public class UpdateUserInfoInputDTO {
   private String name;
   private String email;
   private String about;

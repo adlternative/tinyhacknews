@@ -1,6 +1,6 @@
-package com.adlternative.tinyhacknews.entity;
+package com.adlternative.tinyhacknews.models.output;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.adlternative.tinyhacknews.models.UserInfo;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,10 +13,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class SimpleUserInfoOutputDTO {
-  @JSONField(name = "id")
   Long id;
 
-  @JSONField(name = "name")
   String name;
 
   LocalDateTime createdAt;

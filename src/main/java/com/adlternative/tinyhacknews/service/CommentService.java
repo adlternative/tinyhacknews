@@ -1,8 +1,8 @@
 package com.adlternative.tinyhacknews.service;
 
-import com.adlternative.tinyhacknews.entity.CommentData;
-import com.adlternative.tinyhacknews.entity.SubmitCommentInputDTO;
-import com.adlternative.tinyhacknews.entity.UpdateCommentInputDTO;
+import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
+import com.adlternative.tinyhacknews.models.input.UpdateCommentInputDTO;
+import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import java.util.List;
 
@@ -15,7 +15,7 @@ public interface CommentService {
    * @param userId
    * @return
    */
-  CommentData submitComment(SubmitCommentInputDTO submitCommentInputDTO);
+  CommentOutPutDTO submitComment(SubmitCommentInputDTO submitCommentInputDTO);
 
   /**
    * 删除评论
@@ -32,7 +32,7 @@ public interface CommentService {
    * @param updateCommentInputDTO
    * @param userId
    */
-  CommentData modifyComment(Long id, UpdateCommentInputDTO updateCommentInputDTO);
+  CommentOutPutDTO modifyComment(Long id, UpdateCommentInputDTO updateCommentInputDTO);
 
   /**
    * 获取评论内容
@@ -40,7 +40,7 @@ public interface CommentService {
    * @param id
    * @param userId
    */
-  CommentData getComment(Long id);
+  CommentOutPutDTO getComment(Long id);
 
   /**
    * 获取某个新闻下的所有评论
@@ -49,7 +49,7 @@ public interface CommentService {
    * @param userId
    * @return
    */
-  IPage<CommentData> getComments(Long newsId, Long pageNum, Long pageSize);
+  IPage<CommentOutPutDTO> getComments(Long newsId, Long pageNum, Long pageSize);
 
-  List<CommentData> getSubComments(Long commentId);
+  List<CommentOutPutDTO> getSubComments(Long commentId);
 }

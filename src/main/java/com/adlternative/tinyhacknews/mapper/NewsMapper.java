@@ -1,7 +1,7 @@
 package com.adlternative.tinyhacknews.mapper;
 
-import com.adlternative.tinyhacknews.entity.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.entity.News;
+import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import java.util.List;

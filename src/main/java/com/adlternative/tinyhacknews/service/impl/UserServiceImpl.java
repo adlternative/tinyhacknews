@@ -1,11 +1,6 @@
 package com.adlternative.tinyhacknews.service.impl;
 
 import com.adlternative.tinyhacknews.context.RequestContext;
-import com.adlternative.tinyhacknews.entity.SimpleUserInfoOutputDTO;
-import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
-import com.adlternative.tinyhacknews.entity.UserInfo;
-import com.adlternative.tinyhacknews.entity.UserInfoOutputDTO;
-import com.adlternative.tinyhacknews.entity.UserRegister;
 import com.adlternative.tinyhacknews.entity.Users;
 import com.adlternative.tinyhacknews.exception.InternalErrorException;
 import com.adlternative.tinyhacknews.exception.InvalidArgException;
@@ -13,6 +8,11 @@ import com.adlternative.tinyhacknews.exception.UnauthorizedException;
 import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.exception.UsernameExistsException;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
+import com.adlternative.tinyhacknews.models.UserInfo;
+import com.adlternative.tinyhacknews.models.input.UpdateUserInfoInputDTO;
+import com.adlternative.tinyhacknews.models.input.UserRegisterInputDTO;
+import com.adlternative.tinyhacknews.models.output.SimpleUserInfoOutputDTO;
+import com.adlternative.tinyhacknews.models.output.UserInfoOutputDTO;
 import com.adlternative.tinyhacknews.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -33,13 +33,13 @@ public class UserServiceImpl implements UserService {
   private final UsersMapper usersMapper;
 
   @Override
-  public UserInfo register(UserRegister userRegister) {
+  public UserInfo register(UserRegisterInputDTO userRegisterInputDTO) {
     LocalDateTime date = LocalDateTime.now();
     Users user =
         Users.builder()
-            .username(userRegister.getName())
-            .email(userRegister.getEmail())
-            .password(userRegister.getPassword())
+            .username(userRegisterInputDTO.getName())
+            .email(userRegisterInputDTO.getEmail())
+            .password(userRegisterInputDTO.getPassword())
             .createdAt(date)
             .updatedAt(date)
             .build();
@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfo updateUserInfo(UpdateUserInfoDTO updateUserInfoDTO) {
+  public UserInfo updateUserInfo(UpdateUserInfoInputDTO updateUserInfoInputDTO) {
     Long userId = RequestContext.getUserId();
     if (userId == null) {
       throw new InvalidArgException("UserId is null");
@@ -83,13 +83,13 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(usersMapper.selectById(userId))
             .orElseThrow((() -> new UserNotFoundException("User not found for id: " + userId)));
 
-    if (!StringUtils.isNullOrEmpty(updateUserInfoDTO.getName())) {
-      user.setUsername(updateUserInfoDTO.getName());
+    if (!StringUtils.isNullOrEmpty(updateUserInfoInputDTO.getName())) {
+      user.setUsername(updateUserInfoInputDTO.getName());
     }
-    if (!StringUtils.isNullOrEmpty(updateUserInfoDTO.getEmail())) {
-      user.setEmail(updateUserInfoDTO.getEmail());
+    if (!StringUtils.isNullOrEmpty(updateUserInfoInputDTO.getEmail())) {
+      user.setEmail(updateUserInfoInputDTO.getEmail());
     }
-    user.setAbout(updateUserInfoDTO.getAbout());
+    user.setAbout(updateUserInfoInputDTO.getAbout());
     user.setUpdatedAt(LocalDateTime.now());
 
     int affectedRows = usersMapper.update(user, new QueryWrapper<Users>().eq("id", userId));

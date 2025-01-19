@@ -1,6 +1,5 @@
-package com.adlternative.tinyhacknews.entity;
+package com.adlternative.tinyhacknews.models.input;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,13 +10,10 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class UserRegister {
-  @JSONField(name = "name")
+public class UserRegisterInputDTO {
   String name;
 
-  @JSONField(name = "password")
   String password;
 
-  @JSONField(name = "email")
   String email;
 }

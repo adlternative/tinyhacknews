@@ -2,8 +2,8 @@ package com.adlternative.tinyhacknews.web.filter;
 
 import com.adlternative.tinyhacknews.auth.JwtUtils;
 import com.adlternative.tinyhacknews.context.RequestContext;
-import com.adlternative.tinyhacknews.entity.SimpleUserInfoOutputDTO;
 import com.adlternative.tinyhacknews.exception.UnauthorizedException;
+import com.adlternative.tinyhacknews.models.output.SimpleUserInfoOutputDTO;
 import com.adlternative.tinyhacknews.service.UserService;
 import io.jsonwebtoken.Claims;
 import java.io.IOException;

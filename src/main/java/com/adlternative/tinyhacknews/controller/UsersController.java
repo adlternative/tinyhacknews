@@ -2,13 +2,13 @@ package com.adlternative.tinyhacknews.controller;
 
 import com.adlternative.tinyhacknews.auth.JwtUtils;
 import com.adlternative.tinyhacknews.context.RequestContext;
-import com.adlternative.tinyhacknews.entity.NewsData;
-import com.adlternative.tinyhacknews.entity.SimpleUserInfoOutputDTO;
-import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
-import com.adlternative.tinyhacknews.entity.UserInfo;
-import com.adlternative.tinyhacknews.entity.UserInfoOutputDTO;
-import com.adlternative.tinyhacknews.entity.UserLoginInputDTO;
-import com.adlternative.tinyhacknews.entity.UserRegister;
+import com.adlternative.tinyhacknews.models.UserInfo;
+import com.adlternative.tinyhacknews.models.input.UpdateUserInfoInputDTO;
+import com.adlternative.tinyhacknews.models.input.UserLoginInputDTO;
+import com.adlternative.tinyhacknews.models.input.UserRegisterInputDTO;
+import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
+import com.adlternative.tinyhacknews.models.output.SimpleUserInfoOutputDTO;
+import com.adlternative.tinyhacknews.models.output.UserInfoOutputDTO;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.adlternative.tinyhacknews.service.UserService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -44,7 +44,7 @@ public class UsersController {
    * @return
    */
   @PostMapping
-  public UserInfo registerUser(@RequestBody UserRegister user) {
+  public UserInfo registerUser(@RequestBody UserRegisterInputDTO user) {
     return userService.register(user);
   }
 
@@ -83,12 +83,12 @@ public class UsersController {
   /**
    * 更新用户信息
    *
-   * @param updateUserInfoDTO
+   * @param updateUserInfoInputDTO
    * @return
    */
   @PutMapping
-  public UserInfo updateUserInfo(@RequestBody UpdateUserInfoDTO updateUserInfoDTO) {
-    return userService.updateUserInfo(updateUserInfoDTO);
+  public UserInfo updateUserInfo(@RequestBody UpdateUserInfoInputDTO updateUserInfoInputDTO) {
+    return userService.updateUserInfo(updateUserInfoInputDTO);
   }
 
   /**
@@ -107,7 +107,7 @@ public class UsersController {
    * @param id
    */
   @GetMapping("/{id}/news")
-  public IPage<NewsData> getAllNewsOfUser(
+  public IPage<NewsDataOutputDTO> getAllNewsOfUser(
       @PathVariable(name = "id") Long id,
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {

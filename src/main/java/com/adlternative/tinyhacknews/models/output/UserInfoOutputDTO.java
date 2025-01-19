@@ -1,5 +1,6 @@
-package com.adlternative.tinyhacknews.entity;
+package com.adlternative.tinyhacknews.models.output;
 
+import com.adlternative.tinyhacknews.models.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,12 +1,8 @@
 package com.adlternative.tinyhacknews.service.impl;
 
 import com.adlternative.tinyhacknews.context.RequestContext;
-import com.adlternative.tinyhacknews.entity.CommentData;
 import com.adlternative.tinyhacknews.entity.Comments;
 import com.adlternative.tinyhacknews.entity.News;
-import com.adlternative.tinyhacknews.entity.SubmitCommentInputDTO;
-import com.adlternative.tinyhacknews.entity.UpdateCommentInputDTO;
-import com.adlternative.tinyhacknews.entity.UserInfo;
 import com.adlternative.tinyhacknews.entity.Users;
 import com.adlternative.tinyhacknews.exception.CommentNotFoundException;
 import com.adlternative.tinyhacknews.exception.DBException;
@@ -17,6 +13,10 @@ import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.mapper.CommentsMapper;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
+import com.adlternative.tinyhacknews.models.UserInfo;
+import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
+import com.adlternative.tinyhacknews.models.input.UpdateCommentInputDTO;
+import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -41,7 +41,7 @@ public class CommentServiceImpl implements CommentService {
    * @return
    */
   @Override
-  public CommentData submitComment(SubmitCommentInputDTO submitCommentInputDTO) {
+  public CommentOutPutDTO submitComment(SubmitCommentInputDTO submitCommentInputDTO) {
     Long userId = RequestContext.getUserId();
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
@@ -84,7 +84,7 @@ public class CommentServiceImpl implements CommentService {
         throw new DBException("Failed to insert comment, affectedRows equals to zero");
       }
 
-      return CommentData.builder()
+      return CommentOutPutDTO.builder()
           .id(comment.getId())
           .newsId(news.getId())
           .parentCommentId(comment.getParentCommentId())
@@ -139,7 +139,7 @@ public class CommentServiceImpl implements CommentService {
    * @param updateCommentInputDTO
    */
   @Override
-  public CommentData modifyComment(Long id, UpdateCommentInputDTO updateCommentInputDTO) {
+  public CommentOutPutDTO modifyComment(Long id, UpdateCommentInputDTO updateCommentInputDTO) {
     Long userId = RequestContext.getUserId();
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
@@ -160,7 +160,7 @@ public class CommentServiceImpl implements CommentService {
       if (affectedRows == 0) {
         throw new DBException("Failed to modify comment, affectedRows equals to zero");
       }
-      return CommentData.builder()
+      return CommentOutPutDTO.builder()
           .id(comment.getId())
           .author(UserInfo.convertFrom(user))
           .createdAt(comment.getCreatedAt())
@@ -183,7 +183,7 @@ public class CommentServiceImpl implements CommentService {
    * @param userId
    */
   @Override
-  public CommentData getComment(Long id) {
+  public CommentOutPutDTO getComment(Long id) {
     // TODO: 一条 sql, join 一下就好
     Comments comment =
         Optional.ofNullable(commentMapper.selectById(id))
@@ -193,11 +193,11 @@ public class CommentServiceImpl implements CommentService {
             .orElseThrow(
                 () -> new UserNotFoundException("User not found for id: " + comment.getAuthorId()));
 
-    return CommentData.convertFrom(comment, user);
+    return CommentOutPutDTO.convertFrom(comment, user);
   }
 
   @Override
-  public IPage<CommentData> getComments(Long newsId, Long pageNum, Long pageSize) {
+  public IPage<CommentOutPutDTO> getComments(Long newsId, Long pageNum, Long pageSize) {
     // 证明新闻存在
     News news =
         Optional.ofNullable(newsMapper.selectById(newsId))
@@ -214,12 +214,12 @@ public class CommentServiceImpl implements CommentService {
                           () ->
                               new UserNotFoundException(
                                   "User not found for id: " + comment.getAuthorId()));
-              return CommentData.convertFrom(comment, user);
+              return CommentOutPutDTO.convertFrom(comment, user);
             });
   }
 
   @Override
-  public List<CommentData> getSubComments(Long commentId) {
+  public List<CommentOutPutDTO> getSubComments(Long commentId) {
     // 证明评论存在
     Comments parentComment =
         Optional.ofNullable(commentMapper.selectById(commentId))
@@ -236,7 +236,7 @@ public class CommentServiceImpl implements CommentService {
                           () ->
                               new UserNotFoundException(
                                   "User not found for id: " + comment.getAuthorId()));
-              return CommentData.convertFrom(comment, user);
+              return CommentOutPutDTO.convertFrom(comment, user);
             })
         .collect(Collectors.toList());
   }

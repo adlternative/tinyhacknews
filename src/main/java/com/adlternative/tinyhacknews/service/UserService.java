@@ -1,10 +1,10 @@
 package com.adlternative.tinyhacknews.service;
 
-import com.adlternative.tinyhacknews.entity.SimpleUserInfoOutputDTO;
-import com.adlternative.tinyhacknews.entity.UpdateUserInfoDTO;
-import com.adlternative.tinyhacknews.entity.UserInfo;
-import com.adlternative.tinyhacknews.entity.UserInfoOutputDTO;
-import com.adlternative.tinyhacknews.entity.UserRegister;
+import com.adlternative.tinyhacknews.models.UserInfo;
+import com.adlternative.tinyhacknews.models.input.UpdateUserInfoInputDTO;
+import com.adlternative.tinyhacknews.models.input.UserRegisterInputDTO;
+import com.adlternative.tinyhacknews.models.output.SimpleUserInfoOutputDTO;
+import com.adlternative.tinyhacknews.models.output.UserInfoOutputDTO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 public interface UserService {
@@ -15,7 +15,7 @@ public interface UserService {
    * @param user
    * @return
    */
-  UserInfo register(UserRegister user);
+  UserInfo register(UserRegisterInputDTO user);
 
   /**
    * 获取单个用户信息
@@ -31,7 +31,7 @@ public interface UserService {
    * @param userInfo
    * @return
    */
-  UserInfo updateUserInfo(UpdateUserInfoDTO userInfo);
+  UserInfo updateUserInfo(UpdateUserInfoInputDTO userInfo);
 
   /**
    * 删除用户

@@ -1,8 +1,8 @@
 package com.adlternative.tinyhacknews.controller;
 
-import com.adlternative.tinyhacknews.entity.CommentData;
-import com.adlternative.tinyhacknews.entity.SubmitCommentInputDTO;
-import com.adlternative.tinyhacknews.entity.UpdateCommentInputDTO;
+import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
+import com.adlternative.tinyhacknews.models.input.UpdateCommentInputDTO;
+import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class CommentsController {
    * @return
    */
   @PostMapping
-  public CommentData submitComment(@RequestBody SubmitCommentInputDTO submitCommentInputDTO) {
+  public CommentOutPutDTO submitComment(@RequestBody SubmitCommentInputDTO submitCommentInputDTO) {
     return commentService.submitComment(submitCommentInputDTO);
   }
 
@@ -48,7 +48,7 @@ public class CommentsController {
    * @return
    */
   @PutMapping("/{id}")
-  public CommentData modifyComment(
+  public CommentOutPutDTO modifyComment(
       @PathVariable Long id, @RequestBody UpdateCommentInputDTO updateCommentInputDTO) {
     return commentService.modifyComment(id, updateCommentInputDTO);
   }
@@ -60,7 +60,7 @@ public class CommentsController {
    * @return
    */
   @GetMapping("/{id}")
-  public CommentData getComment(@PathVariable Long id) {
+  public CommentOutPutDTO getComment(@PathVariable Long id) {
     return commentService.getComment(id);
   }
 
@@ -71,7 +71,7 @@ public class CommentsController {
    * @return
    */
   @GetMapping("/{id}/sub_comments")
-  public List<CommentData> getSubComments(@PathVariable(value = "id") Long commentId) {
+  public List<CommentOutPutDTO> getSubComments(@PathVariable(value = "id") Long commentId) {
     return commentService.getSubComments(commentId);
   }
 

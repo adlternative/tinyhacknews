@@ -1,11 +1,7 @@
 package com.adlternative.tinyhacknews.service.impl;
 
 import com.adlternative.tinyhacknews.context.RequestContext;
-import com.adlternative.tinyhacknews.entity.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.entity.News;
-import com.adlternative.tinyhacknews.entity.NewsData;
-import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
-import com.adlternative.tinyhacknews.entity.UserInfo;
 import com.adlternative.tinyhacknews.entity.Users;
 import com.adlternative.tinyhacknews.exception.DBException;
 import com.adlternative.tinyhacknews.exception.ForbiddenException;
@@ -14,6 +10,10 @@ import com.adlternative.tinyhacknews.exception.NewsNotFoundException;
 import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
+import com.adlternative.tinyhacknews.models.UserInfo;
+import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
+import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
+import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
   @Override
-  public NewsData submit(SubmitNewsInputDTO submitNewsInputDTO) {
+  public NewsDataOutputDTO submit(SubmitNewsInputDTO submitNewsInputDTO) {
     Long userId = RequestContext.getUserId();
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
@@ -51,7 +51,7 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to insert news, affectedRows equals to zero");
       }
-      return NewsData.builder()
+      return NewsDataOutputDTO.builder()
           .id(news.getId())
           .title(news.getTitle())
           .text(news.getText())
@@ -88,7 +88,7 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public NewsData getNews(Long id) {
+  public NewsDataOutputDTO getNews(Long id) {
     // TODO: 校验用户权限
     News news =
         Optional.ofNullable(newsMapper.selectById(id))
@@ -96,7 +96,7 @@ public class NewsServiceImpl implements NewsService {
     Users user =
         Optional.ofNullable(userMapper.selectById(news.getAuthorId()))
             .orElseThrow(() -> new UserNotFoundException("Failed to get news, user not found"));
-    return NewsData.builder()
+    return NewsDataOutputDTO.builder()
         .id(news.getId())
         .url(news.getUrl())
         .title(news.getTitle())
@@ -108,7 +108,7 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public NewsData changeNews(Long id, SubmitNewsInputDTO submitNewsInputDTO) {
+  public NewsDataOutputDTO changeNews(Long id, SubmitNewsInputDTO submitNewsInputDTO) {
     Long userId = RequestContext.getUserId();
     News news =
         Optional.ofNullable(newsMapper.selectById(id))
@@ -131,7 +131,7 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to update news, affectedRows equals to zero");
       }
-      return NewsData.convertFromNews(news, user);
+      return NewsDataOutputDTO.convertFromNews(news, user);
 
     } catch (Exception e) {
       throw new InternalErrorException("Update news failed", e);
@@ -139,17 +139,18 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public IPage<NewsData> getAllNewsOfUser(Long userId, Long pageNum, Long pageSize) {
+  public IPage<NewsDataOutputDTO> getAllNewsOfUser(Long userId, Long pageNum, Long pageSize) {
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
     return newsMapper
         .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<News>().eq("author_id", userId))
-        .convert(singleNew -> NewsData.convertFromNews(singleNew, user));
+        .convert(singleNew -> NewsDataOutputDTO.convertFromNews(singleNew, user));
   }
 
   @Override
-  public IPage<NewsData> getAllNews(Long pageNum, Long pageSize, ListAllNewsOrderEnum order) {
+  public IPage<NewsDataOutputDTO> getAllNews(
+      Long pageNum, Long pageSize, ListAllNewsOrderEnum order) {
     // TODO: order by point
     return newsMapper
         .selectAllInOrder(new Page<>(pageNum, pageSize), order)
@@ -161,7 +162,7 @@ public class NewsServiceImpl implements NewsService {
                       .orElseThrow(
                           () -> new UserNotFoundException("Failed to get user, user not found"));
 
-              return NewsData.convertFromNews(singleNew, user);
+              return NewsDataOutputDTO.convertFromNews(singleNew, user);
             });
   }
 

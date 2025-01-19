@@ -1,4 +1,4 @@
-package com.adlternative.tinyhacknews.entity;
+package com.adlternative.tinyhacknews.models.input;
 
 import lombok.Data;
 

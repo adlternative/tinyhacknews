@@ -1,9 +1,9 @@
 package com.adlternative.tinyhacknews.controller;
 
-import com.adlternative.tinyhacknews.entity.CommentData;
-import com.adlternative.tinyhacknews.entity.ListAllNewsOrderEnum;
-import com.adlternative.tinyhacknews.entity.NewsData;
-import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
+import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
+import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
+import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
+import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -30,7 +30,7 @@ public class NewsController {
    * @return
    */
   @PostMapping
-  public NewsData submitNews(@RequestBody SubmitNewsInputDTO submitNewsInputDTO) {
+  public NewsDataOutputDTO submitNews(@RequestBody SubmitNewsInputDTO submitNewsInputDTO) {
     return newsService.submit(submitNewsInputDTO);
   }
 
@@ -42,7 +42,7 @@ public class NewsController {
    * @return
    */
   @PutMapping("/{id}")
-  public NewsData changeNews(
+  public NewsDataOutputDTO changeNews(
       @PathVariable(name = "id") Long id, @RequestBody SubmitNewsInputDTO submitNewsInputDTO) {
     return newsService.changeNews(id, submitNewsInputDTO);
   }
@@ -54,7 +54,7 @@ public class NewsController {
    * @return
    */
   @GetMapping("/{id}")
-  public NewsData getNews(@PathVariable(name = "id") Long id) {
+  public NewsDataOutputDTO getNews(@PathVariable(name = "id") Long id) {
     return newsService.getNews(id);
   }
 
@@ -75,7 +75,7 @@ public class NewsController {
    * @return
    */
   @GetMapping("/{id}/comments")
-  public IPage<CommentData> getComments(
+  public IPage<CommentOutPutDTO> getComments(
       @PathVariable(name = "id") Long newsId,
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
@@ -88,7 +88,7 @@ public class NewsController {
    * @return
    */
   @GetMapping("/all")
-  public IPage<NewsData> getAllNews(
+  public IPage<NewsDataOutputDTO> getAllNews(
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize,
       @RequestParam(name = "order", defaultValue = "DATE_DESC") ListAllNewsOrderEnum order) {

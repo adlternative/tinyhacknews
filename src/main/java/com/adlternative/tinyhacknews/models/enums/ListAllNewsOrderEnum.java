@@ -1,4 +1,4 @@
-package com.adlternative.tinyhacknews.entity;
+package com.adlternative.tinyhacknews.models.enums;
 
 import lombok.Getter;
 

@@ -1,12 +1,15 @@
-package com.adlternative.tinyhacknews.entity;
+package com.adlternative.tinyhacknews.models.output;
 
+import com.adlternative.tinyhacknews.entity.Comments;
+import com.adlternative.tinyhacknews.entity.Users;
+import com.adlternative.tinyhacknews.models.UserInfo;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class CommentData {
+public class CommentOutPutDTO {
   private Long id;
   private UserInfo author;
   private String text;
@@ -19,8 +22,8 @@ public class CommentData {
 
   private LocalDateTime updatedAt;
 
-  public static CommentData convertFrom(Comments comment, Users user) {
-    return CommentData.builder()
+  public static CommentOutPutDTO convertFrom(Comments comment, Users user) {
+    return CommentOutPutDTO.builder()
         .id(comment.getId())
         .author(UserInfo.convertFrom(user))
         .createdAt(comment.getCreatedAt())

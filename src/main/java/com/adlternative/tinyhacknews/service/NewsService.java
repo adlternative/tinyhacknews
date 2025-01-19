@@ -1,8 +1,8 @@
 package com.adlternative.tinyhacknews.service;
 
-import com.adlternative.tinyhacknews.entity.ListAllNewsOrderEnum;
-import com.adlternative.tinyhacknews.entity.NewsData;
-import com.adlternative.tinyhacknews.entity.SubmitNewsInputDTO;
+import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
+import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
+import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 public interface NewsService {
@@ -14,7 +14,7 @@ public interface NewsService {
    * @param submitNewsInputDTO
    * @return
    */
-  NewsData submit(SubmitNewsInputDTO submitNewsInputDTO);
+  NewsDataOutputDTO submit(SubmitNewsInputDTO submitNewsInputDTO);
 
   /**
    * 删除一条新闻
@@ -29,7 +29,7 @@ public interface NewsService {
    * @param id
    * @return
    */
-  NewsData getNews(Long id);
+  NewsDataOutputDTO getNews(Long id);
 
   /**
    * 修改一条新闻
@@ -39,7 +39,7 @@ public interface NewsService {
    * @param submitNewsInputDTO
    * @return
    */
-  NewsData changeNews(Long id, SubmitNewsInputDTO submitNewsInputDTO);
+  NewsDataOutputDTO changeNews(Long id, SubmitNewsInputDTO submitNewsInputDTO);
 
   /**
    * 获取用户所有新闻
@@ -47,12 +47,12 @@ public interface NewsService {
    * @param userId
    * @return
    */
-  IPage<NewsData> getAllNewsOfUser(Long userId, Long pageNum, Long pageSize);
+  IPage<NewsDataOutputDTO> getAllNewsOfUser(Long userId, Long pageNum, Long pageSize);
 
   /**
    * 获取所有新闻
    *
    * @return
    */
-  IPage<NewsData> getAllNews(Long pageNum, Long pageSize, ListAllNewsOrderEnum order);
+  IPage<NewsDataOutputDTO> getAllNews(Long pageNum, Long pageSize, ListAllNewsOrderEnum order);
 }
