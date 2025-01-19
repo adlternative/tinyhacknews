@@ -1,8 +1,10 @@
 package com.adlternative.tinyhacknews.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -15,6 +17,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@TableName("users")
 @Builder
 public class Users implements Serializable {
 
@@ -23,19 +26,27 @@ public class Users implements Serializable {
   @TableId(value = "id", type = IdType.AUTO)
   private Long id;
 
+  @TableField("username")
   private String username;
 
+  @TableField("password")
   private String password;
 
+  @TableField("email")
   private String email;
 
+  @TableField("created_at")
   private LocalDateTime createdAt;
 
+  @TableField("updated_at")
   private LocalDateTime updatedAt;
 
   /** 是否被删除 */
-  @TableLogic private Boolean isDeleted;
+  @TableField("is_deleted")
+  @TableLogic
+  private Byte isDeleted;
 
   /** 个人说明 */
+  @TableField("about")
   private String about;
 }

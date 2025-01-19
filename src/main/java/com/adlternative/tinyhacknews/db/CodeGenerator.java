@@ -25,10 +25,9 @@ public class CodeGenerator {
                     .mapper("mapper")
                     .service("service")
                     .serviceImpl("service.impl")
-                    .xml("mapper")
                     .pathInfo(
                         Collections.singletonMap(
-                            OutputFile.xml, Paths.get(projectPath) + "src/main/resources")))
+                            OutputFile.xml, projectPath + "/src/main/resources/mapper/")))
         .strategyConfig(
             builder ->
                 builder
