@@ -70,14 +70,13 @@ public class CommentServiceImpl implements CommentService {
 
     LocalDateTime date = LocalDateTime.now();
     Comments comment =
-        Comments.builder()
-            .text(submitCommentInputDTO.getText())
-            .authorId(userId)
-            .newsId(news.getId())
-            .parentCommentId(submitCommentInputDTO.getParentCommentId())
-            .createdAt(date)
-            .updatedAt(date)
-            .build();
+        new Comments()
+            .setText(submitCommentInputDTO.getText())
+            .setAuthorId(userId)
+            .setNewsId(news.getId())
+            .setParentCommentId(submitCommentInputDTO.getParentCommentId())
+            .setCreatedAt(date)
+            .setUpdatedAt(date);
     try {
       int affectedRows = commentMapper.insert(comment);
       if (affectedRows == 0) {

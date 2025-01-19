@@ -38,14 +38,14 @@ public class NewsServiceImpl implements NewsService {
 
     LocalDateTime date = LocalDateTime.now();
     News news =
-        News.builder()
-            .title(submitNewsInputDTO.getTitle())
-            .url(submitNewsInputDTO.getUrl())
-            .text(submitNewsInputDTO.getText())
-            .authorId(userId)
-            .createdAt(date)
-            .updatedAt(date)
-            .build();
+        new News()
+            .setTitle(submitNewsInputDTO.getTitle())
+            .setUrl(submitNewsInputDTO.getUrl())
+            .setText(submitNewsInputDTO.getText())
+            .setAuthorId(userId)
+            .setCreatedAt(date)
+            .setUpdatedAt(date);
+
     try {
       int affectedRows = newsMapper.insert(news);
       if (affectedRows == 0) {

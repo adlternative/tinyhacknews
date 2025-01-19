@@ -36,13 +36,12 @@ public class UserServiceImpl implements UserService {
   public UserInfo register(UserRegisterInputDTO userRegisterInputDTO) {
     LocalDateTime date = LocalDateTime.now();
     Users user =
-        Users.builder()
-            .username(userRegisterInputDTO.getName())
-            .email(userRegisterInputDTO.getEmail())
-            .password(userRegisterInputDTO.getPassword())
-            .createdAt(date)
-            .updatedAt(date)
-            .build();
+        new Users()
+            .setUsername(userRegisterInputDTO.getName())
+            .setEmail(userRegisterInputDTO.getEmail())
+            .setPassword(userRegisterInputDTO.getPassword())
+            .setCreatedAt(date)
+            .setUpdatedAt(date);
     log.info(user.getEmail());
     log.info(user.getPassword());
     log.info(user.getUsername());

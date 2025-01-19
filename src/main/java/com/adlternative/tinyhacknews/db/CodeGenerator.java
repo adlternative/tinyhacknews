@@ -31,12 +31,13 @@ public class CodeGenerator {
         .strategyConfig(
             builder ->
                 builder
-                    .addInclude("users")
+                    //                    .addInclude("users")
                     .entityBuilder()
                     .enableLombok()
                     .enableTableFieldAnnotation()
                     .enableFileOverride()
                     .enableRemoveIsPrefix()
+                    .enableChainModel()
                     .logicDeleteColumnName("is_deleted")
                     .mapperBuilder()
                     .enableFileOverride())

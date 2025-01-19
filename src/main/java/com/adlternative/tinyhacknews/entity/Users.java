@@ -7,9 +7,9 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * @author adlternative
@@ -17,8 +17,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Accessors(chain = true)
 @TableName("users")
-@Builder
 public class Users implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -44,7 +44,7 @@ public class Users implements Serializable {
   /** 是否被删除 */
   @TableField("is_deleted")
   @TableLogic
-  private Byte isDeleted;
+  private Byte deleted;
 
   /** 个人说明 */
   @TableField("about")
