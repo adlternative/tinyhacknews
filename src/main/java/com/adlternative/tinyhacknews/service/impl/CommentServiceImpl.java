@@ -13,7 +13,6 @@ import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.mapper.CommentsMapper;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
-import com.adlternative.tinyhacknews.models.UserInfo;
 import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.models.input.UpdateCommentInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
@@ -81,15 +80,7 @@ public class CommentServiceImpl implements CommentService {
         throw new DBException("Failed to insert comment, affectedRows equals to zero");
       }
 
-      return CommentOutPutDTO.builder()
-          .id(comment.getId())
-          .newsId(news.getId())
-          .parentCommentId(comment.getParentCommentId())
-          .author(UserInfo.convertFrom(user))
-          .text(comment.getText())
-          .createdAt(date)
-          .updatedAt(date)
-          .build();
+      return CommentOutPutDTO.convertFrom(comment, user);
     } catch (DBException e) {
       throw e;
     } catch (Exception e) {
@@ -157,15 +148,7 @@ public class CommentServiceImpl implements CommentService {
       if (affectedRows == 0) {
         throw new DBException("Failed to modify comment, affectedRows equals to zero");
       }
-      return CommentOutPutDTO.builder()
-          .id(comment.getId())
-          .author(UserInfo.convertFrom(user))
-          .createdAt(comment.getCreatedAt())
-          .updatedAt(comment.getUpdatedAt())
-          .text(comment.getText())
-          .parentCommentId(comment.getParentCommentId())
-          .newsId(comment.getNewsId())
-          .build();
+      return CommentOutPutDTO.convertFrom(comment, user);
     } catch (DBException e) {
       throw e;
     } catch (Exception e) {

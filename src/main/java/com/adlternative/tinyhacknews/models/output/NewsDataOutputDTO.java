@@ -3,7 +3,6 @@ package com.adlternative.tinyhacknews.models.output;
 import com.adlternative.tinyhacknews.entity.News;
 import com.adlternative.tinyhacknews.entity.Users;
 import com.adlternative.tinyhacknews.models.NewsInfo;
-import com.adlternative.tinyhacknews.models.UserInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
@@ -16,7 +15,7 @@ public class NewsDataOutputDTO extends NewsInfo {
   private String url;
   private String text;
 
-  public static NewsDataOutputDTO convertFromNews(News news, Users author) {
+  public static NewsDataOutputDTO from(News news, Users author) {
     return NewsDataOutputDTO.builder()
         .id(news.getId())
         .title(news.getTitle())
@@ -24,7 +23,7 @@ public class NewsDataOutputDTO extends NewsInfo {
         .url(news.getUrl())
         .createdAt(news.getCreatedAt())
         .updatedAt(news.getUpdatedAt())
-        .author(UserInfo.convertFrom(author))
+        .author(SimpleUserInfoOutputDTO.from(author))
         .build();
   }
 }

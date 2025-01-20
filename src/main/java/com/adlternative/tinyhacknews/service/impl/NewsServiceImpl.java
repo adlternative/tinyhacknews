@@ -10,7 +10,6 @@ import com.adlternative.tinyhacknews.exception.NewsNotFoundException;
 import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
-import com.adlternative.tinyhacknews.models.UserInfo;
 import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
@@ -51,15 +50,7 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to insert news, affectedRows equals to zero");
       }
-      return NewsDataOutputDTO.builder()
-          .id(news.getId())
-          .title(news.getTitle())
-          .text(news.getText())
-          .url(news.getUrl())
-          .createdAt(news.getCreatedAt())
-          .updatedAt(news.getUpdatedAt())
-          .author(UserInfo.convertFrom(user))
-          .build();
+      return NewsDataOutputDTO.from(news, user);
     } catch (Exception e) {
       throw new InternalErrorException("Submit news failed", e);
     }
@@ -96,15 +87,7 @@ public class NewsServiceImpl implements NewsService {
     Users user =
         Optional.ofNullable(userMapper.selectById(news.getAuthorId()))
             .orElseThrow(() -> new UserNotFoundException("Failed to get news, user not found"));
-    return NewsDataOutputDTO.builder()
-        .id(news.getId())
-        .url(news.getUrl())
-        .title(news.getTitle())
-        .text(news.getText())
-        .author(UserInfo.convertFrom(user))
-        .createdAt(news.getCreatedAt())
-        .updatedAt(news.getUpdatedAt())
-        .build();
+    return NewsDataOutputDTO.from(news, user);
   }
 
   @Override
@@ -131,7 +114,7 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to update news, affectedRows equals to zero");
       }
-      return NewsDataOutputDTO.convertFromNews(news, user);
+      return NewsDataOutputDTO.from(news, user);
 
     } catch (Exception e) {
       throw new InternalErrorException("Update news failed", e);
@@ -145,7 +128,7 @@ public class NewsServiceImpl implements NewsService {
             .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
     return newsMapper
         .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<News>().eq("author_id", userId))
-        .convert(singleNew -> NewsDataOutputDTO.convertFromNews(singleNew, user));
+        .convert(singleNew -> NewsDataOutputDTO.from(singleNew, user));
   }
 
   @Override
@@ -162,7 +145,7 @@ public class NewsServiceImpl implements NewsService {
                       .orElseThrow(
                           () -> new UserNotFoundException("Failed to get user, user not found"));
 
-              return NewsDataOutputDTO.convertFromNews(singleNew, user);
+              return NewsDataOutputDTO.from(singleNew, user);
             });
   }
 

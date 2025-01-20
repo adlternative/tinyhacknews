@@ -1,36 +1,21 @@
 package com.adlternative.tinyhacknews.models.output;
 
-import com.adlternative.tinyhacknews.models.UserInfo;
-import java.util.Date;
+import com.adlternative.tinyhacknews.entity.Users;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
-/** 普通用户信息，不包含邮箱 */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
+@Builder
 public class SimpleUserInfoOutputDTO {
   Long id;
 
   String name;
 
-  Date createdAt;
-
-  String about;
-
-  // 用户的分数，被点赞越多分数越高，默认 0
-  Long karma = 0L;
-
-  public static SimpleUserInfoOutputDTO from(UserInfo userInfo) {
-    return SimpleUserInfoOutputDTO.builder()
-        .id(userInfo.getId())
-        .name(userInfo.getName())
-        .createdAt(userInfo.getCreatedAt())
-        .about(userInfo.getAbout())
-        .karma(0L)
-        .build();
+  public static SimpleUserInfoOutputDTO from(Users users) {
+    return SimpleUserInfoOutputDTO.builder().id(users.getId()).name(users.getUsername()).build();
   }
 }

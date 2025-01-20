@@ -3,7 +3,7 @@ package com.adlternative.tinyhacknews.web.filter;
 import com.adlternative.tinyhacknews.auth.JwtUtils;
 import com.adlternative.tinyhacknews.context.RequestContext;
 import com.adlternative.tinyhacknews.exception.UnauthorizedException;
-import com.adlternative.tinyhacknews.models.output.SimpleUserInfoOutputDTO;
+import com.adlternative.tinyhacknews.models.output.UserInfoOutputDTO;
 import com.adlternative.tinyhacknews.service.UserService;
 import io.jsonwebtoken.Claims;
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class AuthFilter implements Filter {
           Long userId = Long.valueOf(claims.getSubject());
           String username = (String) claims.get(JwtUtils.USER_NAME_CLAIM);
 
-          SimpleUserInfoOutputDTO simpleUserInfo = userService.getSingleUserInfo(userId);
+          UserInfoOutputDTO simpleUserInfo = userService.getSingleUserInfo(userId);
           if (!Objects.equals(simpleUserInfo.getName(), username)) {
             log.error("用户信息不匹配, userInfo: {}, username: {}", simpleUserInfo, username);
             throw new UnauthorizedException("用户信息不匹配");

@@ -1,5 +1,6 @@
 package com.adlternative.tinyhacknews.models;
 
+import com.adlternative.tinyhacknews.models.output.SimpleUserInfoOutputDTO;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class NewsInfo {
   Long id;
-  UserInfo author;
+  SimpleUserInfoOutputDTO author;
   Date createdAt;
   Date updatedAt;
 }

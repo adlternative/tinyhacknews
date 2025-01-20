@@ -11,7 +11,7 @@ import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.models.UserInfo;
 import com.adlternative.tinyhacknews.models.input.UpdateUserInfoInputDTO;
 import com.adlternative.tinyhacknews.models.input.UserRegisterInputDTO;
-import com.adlternative.tinyhacknews.models.output.SimpleUserInfoOutputDTO;
+import com.adlternative.tinyhacknews.models.output.FullUserInfoOutputDTO;
 import com.adlternative.tinyhacknews.models.output.UserInfoOutputDTO;
 import com.adlternative.tinyhacknews.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -61,8 +61,8 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public SimpleUserInfoOutputDTO getSingleUserInfo(Long userId) {
-    return SimpleUserInfoOutputDTO.from(getUserInfo(userId));
+  public UserInfoOutputDTO getSingleUserInfo(Long userId) {
+    return UserInfoOutputDTO.from(getUserInfo(userId));
   }
 
   private UserInfo getUserInfo(Long userId) {
@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public SimpleUserInfoOutputDTO findByUserName(String name) {
+  public UserInfoOutputDTO findByUserName(String name) {
     if (StringUtils.isNullOrEmpty(name)) {
       throw new InvalidArgException("Name is empty");
     }
@@ -119,15 +119,15 @@ public class UserServiceImpl implements UserService {
                 .findByUserName(name)
                 .orElseThrow(
                     (() -> new UserNotFoundException("User not found for name: " + name))));
-    return SimpleUserInfoOutputDTO.from(userInfo);
+    return UserInfoOutputDTO.from(userInfo);
   }
 
   @Override
-  public IPage<SimpleUserInfoOutputDTO> getAllUsersInfo(Long pageNum, Long pageSize) {
+  public IPage<UserInfoOutputDTO> getAllUsersInfo(Long pageNum, Long pageSize) {
     return usersMapper
         .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<>())
         .convert(UserInfo::convertFrom)
-        .convert(SimpleUserInfoOutputDTO::from);
+        .convert(UserInfoOutputDTO::from);
   }
 
   @Override
@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserInfoOutputDTO getCurrentUserInfo() {
-    return UserInfoOutputDTO.from(getUserInfo(RequestContext.getUserId()));
+  public FullUserInfoOutputDTO getCurrentUserInfo() {
+    return FullUserInfoOutputDTO.from(getUserInfo(RequestContext.getUserId()));
   }
 }

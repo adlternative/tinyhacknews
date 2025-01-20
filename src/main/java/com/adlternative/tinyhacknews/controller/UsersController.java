@@ -6,8 +6,8 @@ import com.adlternative.tinyhacknews.models.UserInfo;
 import com.adlternative.tinyhacknews.models.input.UpdateUserInfoInputDTO;
 import com.adlternative.tinyhacknews.models.input.UserLoginInputDTO;
 import com.adlternative.tinyhacknews.models.input.UserRegisterInputDTO;
+import com.adlternative.tinyhacknews.models.output.FullUserInfoOutputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
-import com.adlternative.tinyhacknews.models.output.SimpleUserInfoOutputDTO;
 import com.adlternative.tinyhacknews.models.output.UserInfoOutputDTO;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.adlternative.tinyhacknews.service.UserService;
@@ -55,7 +55,7 @@ public class UsersController {
    * @return
    */
   @GetMapping("/{id}")
-  public SimpleUserInfoOutputDTO getUserInfo(@PathVariable("id") Long id) {
+  public UserInfoOutputDTO getUserInfo(@PathVariable("id") Long id) {
     return userService.getSingleUserInfo(id);
   }
 
@@ -65,7 +65,7 @@ public class UsersController {
    * @return
    */
   @GetMapping("/me")
-  public UserInfoOutputDTO getCurrentUserInfo() {
+  public FullUserInfoOutputDTO getCurrentUserInfo() {
     return userService.getCurrentUserInfo();
   }
 
@@ -76,7 +76,7 @@ public class UsersController {
    * @return
    */
   @GetMapping
-  public SimpleUserInfoOutputDTO getUserInfoByUserName(@RequestParam(name = "name") String name) {
+  public UserInfoOutputDTO getUserInfoByUserName(@RequestParam(name = "name") String name) {
     return userService.findByUserName(name);
   }
 
@@ -122,7 +122,7 @@ public class UsersController {
    * @return
    */
   @GetMapping("/all")
-  public IPage<SimpleUserInfoOutputDTO> getAllUsersInfo(
+  public IPage<UserInfoOutputDTO> getAllUsersInfo(
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
     return userService.getAllUsersInfo(pageNum, pageSize);
@@ -161,7 +161,7 @@ public class UsersController {
   public ResponseEntity<Void> logout() {
     // TODO: 也许应该记录用户登录登出状态之类的...
     Long userId = RequestContext.getUserId();
-    SimpleUserInfoOutputDTO userInfo = userService.getSingleUserInfo(userId);
+    UserInfoOutputDTO userInfo = userService.getSingleUserInfo(userId);
     log.info(String.format("User logout: %s", userInfo.getName()));
 
     return ResponseEntity.ok().build();

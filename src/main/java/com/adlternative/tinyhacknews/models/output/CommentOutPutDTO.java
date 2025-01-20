@@ -2,7 +2,6 @@ package com.adlternative.tinyhacknews.models.output;
 
 import com.adlternative.tinyhacknews.entity.Comments;
 import com.adlternative.tinyhacknews.entity.Users;
-import com.adlternative.tinyhacknews.models.UserInfo;
 import java.util.Date;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +10,7 @@ import lombok.Data;
 @Builder
 public class CommentOutPutDTO {
   private Long id;
-  private UserInfo author;
+  private SimpleUserInfoOutputDTO author;
   private String text;
 
   private Long newsId;
@@ -25,7 +24,7 @@ public class CommentOutPutDTO {
   public static CommentOutPutDTO convertFrom(Comments comment, Users user) {
     return CommentOutPutDTO.builder()
         .id(comment.getId())
-        .author(UserInfo.convertFrom(user))
+        .author(SimpleUserInfoOutputDTO.from(user))
         .createdAt(comment.getCreatedAt())
         .updatedAt(comment.getUpdatedAt())
         .text(comment.getText())
