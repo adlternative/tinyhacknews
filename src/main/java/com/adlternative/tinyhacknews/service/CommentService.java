@@ -12,10 +12,9 @@ public interface CommentService {
    * 提交评论
    *
    * @param submitCommentInputDTO
-   * @param userId
    * @return
    */
-  CommentOutPutDTO submitComment(SubmitCommentInputDTO submitCommentInputDTO);
+  CommentOutPutDTO submitComment(Long newsId, SubmitCommentInputDTO submitCommentInputDTO);
 
   /**
    * 删除评论

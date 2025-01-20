@@ -1,6 +1,5 @@
 package com.adlternative.tinyhacknews.controller;
 
-import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.models.input.UpdateCommentInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
@@ -9,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,17 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/comments")
 @RequiredArgsConstructor
 public class CommentsController {
-  /**
-   * 提交评论
-   *
-   * @param submitCommentInputDTO
-   * @return
-   */
-  @PostMapping
-  public CommentOutPutDTO submitComment(@RequestBody SubmitCommentInputDTO submitCommentInputDTO) {
-    return commentService.submitComment(submitCommentInputDTO);
-  }
-
   /**
    * 删除评论
    *

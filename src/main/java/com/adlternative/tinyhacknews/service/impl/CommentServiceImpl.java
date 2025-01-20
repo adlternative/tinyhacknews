@@ -37,22 +37,20 @@ public class CommentServiceImpl implements CommentService {
   /**
    * 提交评论
    *
+   * @param newsId
    * @param submitCommentInputDTO
    * @return
    */
   @Override
-  public CommentOutPutDTO submitComment(SubmitCommentInputDTO submitCommentInputDTO) {
+  public CommentOutPutDTO submitComment(Long newsId, SubmitCommentInputDTO submitCommentInputDTO) {
     Long userId = RequestContext.getUserId();
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
 
     News news =
-        Optional.ofNullable(newsMapper.selectById(submitCommentInputDTO.getNewsId()))
-            .orElseThrow(
-                () ->
-                    new NewsNotFoundException(
-                        "News not found for id: " + submitCommentInputDTO.getNewsId()));
+        Optional.ofNullable(newsMapper.selectById(newsId))
+            .orElseThrow(() -> new NewsNotFoundException("News not found for id: " + newsId));
 
     if (submitCommentInputDTO.getParentCommentId() != null) {
       Comments parentComment =

@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.controller;
 
 import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
+import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
@@ -93,6 +94,20 @@ public class NewsController {
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize,
       @RequestParam(name = "order", defaultValue = "DATE_DESC") ListAllNewsOrderEnum order) {
     return newsService.getAllNews(pageNum, pageSize, order);
+  }
+
+  /**
+   * 向一条新闻添加评论
+   *
+   * @param newsId
+   * @param submitCommentInputDTO
+   * @return
+   */
+  @PostMapping("/{id}/comments")
+  public CommentOutPutDTO addComment(
+      @PathVariable(name = "id") Long newsId,
+      @RequestBody SubmitCommentInputDTO submitCommentInputDTO) {
+    return commentService.submitComment(newsId, submitCommentInputDTO);
   }
 
   private final NewsService newsService;
