@@ -3,6 +3,7 @@ package com.adlternative.tinyhacknews.service;
 import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
+import com.adlternative.tinyhacknews.models.output.NewsMetaOutputDTO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 public interface NewsService {
@@ -54,5 +55,5 @@ public interface NewsService {
    *
    * @return
    */
-  IPage<NewsDataOutputDTO> getAllNews(Long pageNum, Long pageSize, ListAllNewsOrderEnum order);
+  IPage<NewsMetaOutputDTO> getAllNews(Long pageNum, Long pageSize, ListAllNewsOrderEnum order);
 }

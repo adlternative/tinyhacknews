@@ -5,6 +5,7 @@ import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
+import com.adlternative.tinyhacknews.models.output.NewsMetaOutputDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -89,7 +90,7 @@ public class NewsController {
    * @return
    */
   @GetMapping("/all")
-  public IPage<NewsDataOutputDTO> getAllNews(
+  public IPage<NewsMetaOutputDTO> getAllNews(
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize,
       @RequestParam(name = "order", defaultValue = "DATE_DESC") ListAllNewsOrderEnum order) {

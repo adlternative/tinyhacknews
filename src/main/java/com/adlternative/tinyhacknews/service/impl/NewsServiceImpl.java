@@ -13,6 +13,7 @@ import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
+import com.adlternative.tinyhacknews.models.output.NewsMetaOutputDTO;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -132,7 +133,7 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public IPage<NewsDataOutputDTO> getAllNews(
+  public IPage<NewsMetaOutputDTO> getAllNews(
       Long pageNum, Long pageSize, ListAllNewsOrderEnum order) {
     // TODO: order by point
     return newsMapper
@@ -145,7 +146,7 @@ public class NewsServiceImpl implements NewsService {
                       .orElseThrow(
                           () -> new UserNotFoundException("Failed to get user, user not found"));
 
-              return NewsDataOutputDTO.from(singleNew, user);
+              return NewsMetaOutputDTO.from(singleNew, user);
             });
   }
 
