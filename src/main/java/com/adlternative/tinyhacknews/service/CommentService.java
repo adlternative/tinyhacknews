@@ -21,7 +21,6 @@ public interface CommentService {
    * 删除评论
    *
    * @param id
-   * @param userId
    */
   void deleteComment(Long id);
 
@@ -30,7 +29,6 @@ public interface CommentService {
    *
    * @param id
    * @param updateCommentInputDTO
-   * @param userId
    */
   CommentOutPutDTO modifyComment(Long id, UpdateCommentInputDTO updateCommentInputDTO);
 
@@ -38,7 +36,6 @@ public interface CommentService {
    * 获取评论内容
    *
    * @param id
-   * @param userId
    */
   CommentOutPutDTO getComment(Long id);
 
@@ -46,7 +43,6 @@ public interface CommentService {
    * 获取某个新闻下的所有评论
    *
    * @param newsId
-   * @param userId
    * @return
    */
   IPage<CommentOutPutDTO> getComments(Long newsId, Long pageNum, Long pageSize);

@@ -12,7 +12,6 @@ public interface NewsService {
   /**
    * 提交一条新闻
    *
-   * @param userId
    * @param submitNewsInputDTO
    * @return
    */
@@ -37,7 +36,6 @@ public interface NewsService {
    * 修改一条新闻
    *
    * @param id
-   * @param userId
    * @param submitNewsInputDTO
    * @return
    */
