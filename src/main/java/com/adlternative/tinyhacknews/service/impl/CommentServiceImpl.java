@@ -16,6 +16,7 @@ import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.models.input.UpdateCommentInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
+import com.adlternative.tinyhacknews.models.output.CommentWithNewsMetaOutPutDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -219,6 +220,31 @@ public class CommentServiceImpl implements CommentService {
               return CommentOutPutDTO.convertFrom(comment, user);
             })
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public IPage<CommentWithNewsMetaOutPutDTO> getAllComments(Long pageNum, Long pageSize) {
+    QueryWrapper<Comments> query = new QueryWrapper<>();
+    query.orderByDesc("created_at");
+
+    return commentMapper
+        .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<>())
+        .convert(
+            comment -> {
+              Users user =
+                  Optional.ofNullable(userMapper.selectById(comment.getAuthorId()))
+                      .orElseThrow(
+                          () ->
+                              new UserNotFoundException(
+                                  "User not found for id: " + comment.getAuthorId()));
+              News news =
+                  Optional.ofNullable(newsMapper.selectById(comment.getNewsId()))
+                      .orElseThrow(
+                          () ->
+                              new NewsNotFoundException(
+                                  "News not found for id: " + comment.getNewsId()));
+              return CommentWithNewsMetaOutPutDTO.from(comment, news, user);
+            });
   }
 
   private final CommentsMapper commentMapper;

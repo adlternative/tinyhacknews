@@ -2,7 +2,9 @@ package com.adlternative.tinyhacknews.controller;
 
 import com.adlternative.tinyhacknews.models.input.UpdateCommentInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
+import com.adlternative.tinyhacknews.models.output.CommentWithNewsMetaOutPutDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -60,6 +63,14 @@ public class CommentsController {
   @GetMapping("/{id}/sub_comments")
   public List<CommentOutPutDTO> getSubComments(@PathVariable(value = "id") Long commentId) {
     return commentService.getSubComments(commentId);
+  }
+
+  // 分页获取所有评论
+  @GetMapping("/all")
+  public IPage<CommentWithNewsMetaOutPutDTO> getComments(
+      @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
+      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
+    return commentService.getAllComments(pageNum, pageSize);
   }
 
   private final CommentService commentService;

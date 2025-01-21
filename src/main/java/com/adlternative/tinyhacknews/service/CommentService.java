@@ -3,6 +3,7 @@ package com.adlternative.tinyhacknews.service;
 import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.models.input.UpdateCommentInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
+import com.adlternative.tinyhacknews.models.output.CommentWithNewsMetaOutPutDTO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import java.util.List;
 
@@ -51,4 +52,6 @@ public interface CommentService {
   IPage<CommentOutPutDTO> getComments(Long newsId, Long pageNum, Long pageSize);
 
   List<CommentOutPutDTO> getSubComments(Long commentId);
+
+  IPage<CommentWithNewsMetaOutPutDTO> getAllComments(Long pageNum, Long pageSize);
 }
