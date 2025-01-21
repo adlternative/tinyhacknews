@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -145,10 +146,15 @@ public class NewsServiceImpl implements NewsService {
 
   @Override
   public IPage<NewsMetaOutputDTO> getAllNews(
-      Long pageNum, Long pageSize, ListAllNewsOrderEnum order, NewsTypeEnum type) {
-    // TODO: order by point
+      Long pageNum, Long pageSize, ListAllNewsOrderEnum order, NewsTypeEnum type, String date) {
+    // TODO: date 必须是形如 2020-01-01 的格式, 否则会抛出异常
+    // 检查日期格式是否正确
+    if (StringUtils.isNotEmpty(date) && !date.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+      throw new IllegalArgumentException("Date must be in YYYY-MM-DD format");
+    }
+
     return newsMapper
-        .selectAllInOrder(new Page<>(pageNum, pageSize), order, type)
+        .selectAllInOrder(new Page<>(pageNum, pageSize), order, type, date)
         .convert(
             singleNew -> {
               Long userId = singleNew.getAuthorId();

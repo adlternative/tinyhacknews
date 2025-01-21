@@ -92,11 +92,13 @@ public class NewsController {
    */
   @GetMapping("/all")
   public IPage<NewsMetaOutputDTO> getAllNews(
-      @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
-      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize,
-      @RequestParam(name = "type", defaultValue = "NORMAL") NewsTypeEnum type,
-      @RequestParam(name = "order", defaultValue = "DATE_DESC") ListAllNewsOrderEnum order) {
-    return newsService.getAllNews(pageNum, pageSize, order, type);
+      @RequestParam(name = "page_num", defaultValue = "1", required = false) Long pageNum,
+      @RequestParam(name = "page_size", defaultValue = "10", required = false) Long pageSize,
+      @RequestParam(name = "type", defaultValue = "NORMAL", required = false) NewsTypeEnum type,
+      @RequestParam(name = "order", defaultValue = "DATE_DESC", required = false)
+          ListAllNewsOrderEnum order,
+      @RequestParam(name = "date", defaultValue = "", required = false) String date) {
+    return newsService.getAllNews(pageNum, pageSize, order, type, date);
   }
 
   /**

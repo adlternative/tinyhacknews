@@ -57,5 +57,5 @@ public interface NewsService {
    * @return
    */
   IPage<NewsMetaOutputDTO> getAllNews(
-      Long pageNum, Long pageSize, ListAllNewsOrderEnum order, NewsTypeEnum type);
+      Long pageNum, Long pageSize, ListAllNewsOrderEnum order, NewsTypeEnum type, String date);
 }

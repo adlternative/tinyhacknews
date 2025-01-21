@@ -18,5 +18,6 @@ public interface NewsMapper extends BaseMapper<News> {
   IPage<News> selectAllInOrder(
       IPage<?> page,
       @Param("order") ListAllNewsOrderEnum order,
-      @Param("news_type") NewsTypeEnum newsType);
+      @Param("news_type") NewsTypeEnum newsType,
+      @Param("date") String date);
 }

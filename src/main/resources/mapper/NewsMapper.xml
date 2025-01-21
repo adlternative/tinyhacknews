@@ -24,6 +24,9 @@
                 and news_type = 'JOBS'
             </when>
         </choose>
+        <if test="date != null and date != ''">
+            AND DATE_FORMAT(created_at, '%Y-%m-%d') = #{date}
+        </if>
         ORDER BY updated_at
         <choose>
             <when test="order.toString() == 'DATE_DESC'">
