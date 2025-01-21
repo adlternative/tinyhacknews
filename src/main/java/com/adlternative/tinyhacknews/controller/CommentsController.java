@@ -69,8 +69,9 @@ public class CommentsController {
   @GetMapping("/all")
   public IPage<CommentWithNewsMetaOutPutDTO> getComments(
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
-      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
-    return commentService.getAllComments(pageNum, pageSize);
+      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize,
+      @RequestParam(name = "user_name", defaultValue = "", required = false) String userName) {
+    return commentService.getAllComments(pageNum, pageSize, userName);
   }
 
   private final CommentService commentService;

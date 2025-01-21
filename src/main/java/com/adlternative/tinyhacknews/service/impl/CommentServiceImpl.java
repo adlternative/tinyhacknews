@@ -13,6 +13,7 @@ import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.mapper.CommentsMapper;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
+import com.adlternative.tinyhacknews.models.UserInfo;
 import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.models.input.UpdateCommentInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -223,12 +225,22 @@ public class CommentServiceImpl implements CommentService {
   }
 
   @Override
-  public IPage<CommentWithNewsMetaOutPutDTO> getAllComments(Long pageNum, Long pageSize) {
+  public IPage<CommentWithNewsMetaOutPutDTO> getAllComments(
+      Long pageNum, Long pageSize, String username) {
     QueryWrapper<Comments> query = new QueryWrapper<>();
     query.orderByDesc("created_at");
+    if (StringUtils.isNotEmpty(username)) {
+      UserInfo userInfo =
+          new UserInfo(
+              userMapper
+                  .findByUserName(username)
+                  .orElseThrow(
+                      (() -> new UserNotFoundException("User not found for name: " + username))));
+      query.eq("author_id", userInfo.getId());
+    }
 
     return commentMapper
-        .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<>())
+        .selectPage(new Page<>(pageNum, pageSize), query)
         .convert(
             comment -> {
               Users user =

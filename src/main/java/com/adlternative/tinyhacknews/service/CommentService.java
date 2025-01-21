@@ -53,5 +53,5 @@ public interface CommentService {
 
   List<CommentOutPutDTO> getSubComments(Long commentId);
 
-  IPage<CommentWithNewsMetaOutPutDTO> getAllComments(Long pageNum, Long pageSize);
+  IPage<CommentWithNewsMetaOutPutDTO> getAllComments(Long pageNum, Long pageSize, String userName);
 }
