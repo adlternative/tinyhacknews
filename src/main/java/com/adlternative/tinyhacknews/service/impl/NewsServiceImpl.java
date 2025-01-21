@@ -39,11 +39,11 @@ public class NewsServiceImpl implements NewsService {
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
     NewsTypeEnum newsType = NewsTypeEnum.NORMAL;
     String title = submitNewsInputDTO.getTitle();
-    if (title.startsWith("SHOW HN:")) {
+    if (title.startsWith("Show HN:")) {
       newsType = NewsTypeEnum.SHOW;
-    } else if (title.startsWith("ASK HN:")) {
+    } else if (title.startsWith("Ask HN:")) {
       newsType = NewsTypeEnum.ASK;
-    } else if (title.startsWith("JOBS HN:")) {
+    } else if (title.startsWith("Jobs HN:")) {
       newsType = NewsTypeEnum.JOBS;
     }
 
