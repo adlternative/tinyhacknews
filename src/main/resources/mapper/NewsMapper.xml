@@ -13,6 +13,17 @@
         select *
         from news
         where is_deleted = 0
+        <choose>
+            <when test="news_type.toString() == 'SHOW'">
+                and news_type = 'SHOW'
+            </when>
+            <when test="news_type.toString() == 'ASK'">
+                and news_type = 'ASK'
+            </when>
+            <when test="news_type.toString() == 'JOBS'">
+                and news_type = 'JOBS'
+            </when>
+        </choose>
         ORDER BY updated_at
         <choose>
             <when test="order.toString() == 'DATE_DESC'">
@@ -22,5 +33,6 @@
                 ASC
             </otherwise>
         </choose>
+
     </select>
 </mapper>

@@ -11,6 +11,7 @@ import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
+import com.adlternative.tinyhacknews.models.enums.NewsTypeEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsMetaOutputDTO;
@@ -35,6 +36,15 @@ public class NewsServiceImpl implements NewsService {
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
             .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
+    NewsTypeEnum newsType = NewsTypeEnum.NORMAL;
+    String title = submitNewsInputDTO.getTitle();
+    if (title.startsWith("SHOW HN:")) {
+      newsType = NewsTypeEnum.SHOW;
+    } else if (title.startsWith("ASK HN:")) {
+      newsType = NewsTypeEnum.ASK;
+    } else if (title.startsWith("JOBS HN:")) {
+      newsType = NewsTypeEnum.JOBS;
+    }
 
     Date date = new Date();
     News news =
@@ -42,6 +52,7 @@ public class NewsServiceImpl implements NewsService {
             .setTitle(submitNewsInputDTO.getTitle())
             .setUrl(submitNewsInputDTO.getUrl())
             .setText(submitNewsInputDTO.getText())
+            .setNewsType(newsType.name())
             .setAuthorId(userId)
             .setCreatedAt(date)
             .setUpdatedAt(date);
@@ -134,10 +145,10 @@ public class NewsServiceImpl implements NewsService {
 
   @Override
   public IPage<NewsMetaOutputDTO> getAllNews(
-      Long pageNum, Long pageSize, ListAllNewsOrderEnum order) {
+      Long pageNum, Long pageSize, ListAllNewsOrderEnum order, NewsTypeEnum type) {
     // TODO: order by point
     return newsMapper
-        .selectAllInOrder(new Page<>(pageNum, pageSize), order)
+        .selectAllInOrder(new Page<>(pageNum, pageSize), order, type)
         .convert(
             singleNew -> {
               Long userId = singleNew.getAuthorId();

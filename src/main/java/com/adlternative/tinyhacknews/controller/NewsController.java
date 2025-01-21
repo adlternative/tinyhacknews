@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.controller;
 
 import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
+import com.adlternative.tinyhacknews.models.enums.NewsTypeEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
@@ -93,8 +94,9 @@ public class NewsController {
   public IPage<NewsMetaOutputDTO> getAllNews(
       @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10") Long pageSize,
+      @RequestParam(name = "type", defaultValue = "NORMAL") NewsTypeEnum type,
       @RequestParam(name = "order", defaultValue = "DATE_DESC") ListAllNewsOrderEnum order) {
-    return newsService.getAllNews(pageNum, pageSize, order);
+    return newsService.getAllNews(pageNum, pageSize, order, type);
   }
 
   /**

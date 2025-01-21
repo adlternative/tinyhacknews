@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
 
 /**
  * @author adlternative
- * @since 2025-01-19
+ * @since 2025-01-20
  */
 @Getter
 @Setter
@@ -48,4 +48,8 @@ public class News implements Serializable {
   @TableField("is_deleted")
   @TableLogic
   private Boolean deleted;
+
+  /** 新闻类型 */
+  @TableField("news_type")
+  private String newsType;
 }

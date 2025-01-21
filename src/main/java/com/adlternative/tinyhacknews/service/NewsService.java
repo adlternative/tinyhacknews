@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.service;
 
 import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
+import com.adlternative.tinyhacknews.models.enums.NewsTypeEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsMetaOutputDTO;
@@ -55,5 +56,6 @@ public interface NewsService {
    *
    * @return
    */
-  IPage<NewsMetaOutputDTO> getAllNews(Long pageNum, Long pageSize, ListAllNewsOrderEnum order);
+  IPage<NewsMetaOutputDTO> getAllNews(
+      Long pageNum, Long pageSize, ListAllNewsOrderEnum order, NewsTypeEnum type);
 }
