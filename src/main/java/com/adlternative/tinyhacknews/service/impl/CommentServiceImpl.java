@@ -259,6 +259,11 @@ public class CommentServiceImpl implements CommentService {
             });
   }
 
+  @Override
+  public Long getCommentCount(Long newsId) {
+    return commentMapper.selectCount(new QueryWrapper<Comments>().eq("news_id", newsId));
+  }
+
   private final CommentsMapper commentMapper;
   private final NewsMapper newsMapper;
   private final UsersMapper userMapper;

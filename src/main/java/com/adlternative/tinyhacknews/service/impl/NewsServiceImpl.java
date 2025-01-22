@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.service.impl;
 
 import com.adlternative.tinyhacknews.context.RequestContext;
+import com.adlternative.tinyhacknews.entity.Comments;
 import com.adlternative.tinyhacknews.entity.News;
 import com.adlternative.tinyhacknews.entity.Users;
 import com.adlternative.tinyhacknews.exception.DBException;
@@ -8,13 +9,14 @@ import com.adlternative.tinyhacknews.exception.ForbiddenException;
 import com.adlternative.tinyhacknews.exception.InternalErrorException;
 import com.adlternative.tinyhacknews.exception.NewsNotFoundException;
 import com.adlternative.tinyhacknews.exception.UserNotFoundException;
+import com.adlternative.tinyhacknews.mapper.CommentsMapper;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.models.enums.NewsTypeEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
-import com.adlternative.tinyhacknews.models.output.NewsMetaOutputDTO;
+import com.adlternative.tinyhacknews.models.output.NewsMetaDetailsOutputDTO;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -145,7 +147,7 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public IPage<NewsMetaOutputDTO> getAllNews(
+  public IPage<NewsMetaDetailsOutputDTO> getAllNews(
       Long pageNum, Long pageSize, ListAllNewsOrderEnum order, NewsTypeEnum type, String date) {
     // TODO: date 必须是形如 2020-01-01 的格式, 否则会抛出异常
     // 检查日期格式是否正确
@@ -162,11 +164,15 @@ public class NewsServiceImpl implements NewsService {
                   Optional.ofNullable(userMapper.selectById(userId))
                       .orElseThrow(
                           () -> new UserNotFoundException("Failed to get user, user not found"));
-
-              return NewsMetaOutputDTO.from(singleNew, user);
+              // TODO: 直接 mapper xml join 实现
+              Long commentCount =
+                  commentMapper.selectCount(
+                      new QueryWrapper<Comments>().eq("news_id", singleNew.getId()));
+              return NewsMetaDetailsOutputDTO.from(singleNew, user, commentCount, 0L);
             });
   }
 
   private final NewsMapper newsMapper;
   private final UsersMapper userMapper;
+  private final CommentsMapper commentMapper;
 }

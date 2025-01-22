@@ -50,4 +50,13 @@ public interface CommentService {
   List<CommentOutPutDTO> getSubComments(Long commentId);
 
   IPage<CommentWithNewsMetaOutPutDTO> getAllComments(Long pageNum, Long pageSize, String userName);
+
+  /**
+   * 获取某个新闻下的评论数量
+   *
+   * @param newsId
+   * @return
+   */
+  //
+  Long getCommentCount(Long newsId);
 }

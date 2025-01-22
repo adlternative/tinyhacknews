@@ -4,7 +4,7 @@ import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.models.enums.NewsTypeEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
-import com.adlternative.tinyhacknews.models.output.NewsMetaOutputDTO;
+import com.adlternative.tinyhacknews.models.output.NewsMetaDetailsOutputDTO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 public interface NewsService {
@@ -54,6 +54,6 @@ public interface NewsService {
    *
    * @return
    */
-  IPage<NewsMetaOutputDTO> getAllNews(
+  IPage<NewsMetaDetailsOutputDTO> getAllNews(
       Long pageNum, Long pageSize, ListAllNewsOrderEnum order, NewsTypeEnum type, String date);
 }

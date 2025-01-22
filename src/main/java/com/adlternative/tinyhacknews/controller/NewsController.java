@@ -6,7 +6,7 @@ import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
-import com.adlternative.tinyhacknews.models.output.NewsMetaOutputDTO;
+import com.adlternative.tinyhacknews.models.output.NewsMetaDetailsOutputDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -91,7 +91,7 @@ public class NewsController {
    * @return
    */
   @GetMapping("/all")
-  public IPage<NewsMetaOutputDTO> getAllNews(
+  public IPage<NewsMetaDetailsOutputDTO> getAllNews(
       @RequestParam(name = "page_num", defaultValue = "1", required = false) Long pageNum,
       @RequestParam(name = "page_size", defaultValue = "10", required = false) Long pageSize,
       @RequestParam(name = "type", defaultValue = "NORMAL", required = false) NewsTypeEnum type,
