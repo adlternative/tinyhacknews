@@ -27,3 +27,9 @@ mybatis-plus:
 
 jwt:
     secret-key: 6218afc7dc5353dbad602c8f3227ab06dfa9e6c9471c2449fa132d7bc7e959ab
+
+springdoc:
+    swagger-ui:
+        path: /api/v1/swagger/swagger-ui.html
+    api-docs:
+        path: /api/v1/swagger/api-docs
