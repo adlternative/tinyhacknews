@@ -14,8 +14,9 @@ public class NewsDataOutputDTO extends NewsInfo {
   private String title;
   private String url;
   private String text;
+  private Long pointsCount;
 
-  public static NewsDataOutputDTO from(News news, Users author) {
+  public static NewsDataOutputDTO from(News news, Users author, Long pointCount) {
     return NewsDataOutputDTO.builder()
         .id(news.getId())
         .title(news.getTitle())
@@ -24,6 +25,7 @@ public class NewsDataOutputDTO extends NewsInfo {
         .createdAt(news.getCreatedAt())
         .updatedAt(news.getUpdatedAt())
         .author(SimpleUserInfoOutputDTO.from(author))
+        .pointsCount(pointCount)
         .build();
   }
 }

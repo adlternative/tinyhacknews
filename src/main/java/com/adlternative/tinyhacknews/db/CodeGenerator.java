@@ -33,7 +33,7 @@ public class CodeGenerator {
         .strategyConfig(
             builder ->
                 builder
-                    //                    .addInclude("users")
+                    .addInclude("votes")
                     .entityBuilder()
                     .enableLombok()
                     .enableTableFieldAnnotation()

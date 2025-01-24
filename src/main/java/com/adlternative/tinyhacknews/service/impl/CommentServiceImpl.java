@@ -4,6 +4,7 @@ import com.adlternative.tinyhacknews.context.RequestContext;
 import com.adlternative.tinyhacknews.entity.Comments;
 import com.adlternative.tinyhacknews.entity.News;
 import com.adlternative.tinyhacknews.entity.Users;
+import com.adlternative.tinyhacknews.entity.Votes;
 import com.adlternative.tinyhacknews.exception.CommentNotFoundException;
 import com.adlternative.tinyhacknews.exception.DBException;
 import com.adlternative.tinyhacknews.exception.ForbiddenException;
@@ -13,7 +14,9 @@ import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.mapper.CommentsMapper;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
+import com.adlternative.tinyhacknews.mapper.VotesMapper;
 import com.adlternative.tinyhacknews.models.UserInfo;
+import com.adlternative.tinyhacknews.models.enums.VoteItemTypeEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitCommentInputDTO;
 import com.adlternative.tinyhacknews.models.input.UpdateCommentInputDTO;
 import com.adlternative.tinyhacknews.models.output.CommentOutPutDTO;
@@ -264,7 +267,66 @@ public class CommentServiceImpl implements CommentService {
     return commentMapper.selectCount(new QueryWrapper<Comments>().eq("news_id", newsId));
   }
 
+  @Override
+  public void vote(Long commentId) {
+    // 如果已经投票过，则不允许重复投票
+    if (votesMapper.selectCount(
+            new QueryWrapper<Votes>()
+                .eq("item_id", commentId)
+                .eq("item_type", VoteItemTypeEnum.COMMENT.name())
+                .eq("user_id", RequestContext.getUserId()))
+        > 0) {
+      throw new ForbiddenException("You have already voted for this comment.");
+    }
+
+    // 如果这条新闻的作者是当前用户，则不允许投票
+    if (Objects.equals(
+        commentMapper.selectById(commentId).getAuthorId(), RequestContext.getUserId())) {
+      throw new ForbiddenException("You cannot vote for your own comment.");
+    }
+
+    // 插入投票记录
+    Date now = new Date();
+    votesMapper.insert(
+        new Votes()
+            .setUserId(RequestContext.getUserId())
+            .setItemId(commentId)
+            .setItemType(VoteItemTypeEnum.COMMENT.name())
+            .setUpdatedAt(now)
+            .setCreatedAt(now));
+  }
+
+  @Override
+  public void unvote(Long commentId) {
+    try {
+      // 如果没有投票过，则不允许取消投票
+      Votes votes =
+          votesMapper.selectOne(
+              new QueryWrapper<Votes>()
+                  .eq("item_id", commentId)
+                  .eq("item_type", VoteItemTypeEnum.COMMENT.name())
+                  .eq("user_id", RequestContext.getUserId()));
+      if (votes == null) {
+        throw new ForbiddenException("You have not voted for this comment.");
+      }
+
+      votesMapper.deleteById(votes.getId());
+    } catch (Exception e) {
+      log.error("Failed to unvote comment", e);
+      throw new InternalErrorException("Failed to unvote comment", e);
+    }
+  }
+
+  @Override
+  public Long getVoteCount(Long commentId) {
+    return votesMapper.selectCount(
+        new QueryWrapper<Votes>()
+            .eq("item_id", commentId)
+            .eq("item_type", VoteItemTypeEnum.COMMENT.name()));
+  }
+
   private final CommentsMapper commentMapper;
   private final NewsMapper newsMapper;
   private final UsersMapper userMapper;
+  private final VotesMapper votesMapper;
 }

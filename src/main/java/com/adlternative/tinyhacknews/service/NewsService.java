@@ -56,4 +56,21 @@ public interface NewsService {
    */
   IPage<NewsMetaDetailsOutputDTO> getAllNews(
       Long pageNum, Long pageSize, ListAllNewsOrderEnum order, NewsTypeEnum type, String date);
+
+  /**
+   * 为某个新闻投票
+   *
+   * @param newsId
+   */
+  void vote(Long newsId);
+
+  void unvote(Long newsId);
+
+  /**
+   * 获取新闻票数
+   *
+   * @param newsId
+   * @return
+   */
+  Long getVoteCount(Long newsId);
 }

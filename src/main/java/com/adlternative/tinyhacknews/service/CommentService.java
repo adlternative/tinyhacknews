@@ -59,4 +59,10 @@ public interface CommentService {
    */
   //
   Long getCommentCount(Long newsId);
+
+  void vote(Long commentId);
+
+  void unvote(Long commentId);
+
+  Long getVoteCount(Long commentId);
 }

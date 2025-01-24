@@ -115,6 +115,28 @@ public class NewsController {
     return commentService.submitComment(newsId, submitCommentInputDTO);
   }
 
+  /**
+   * 为某个新闻投票
+   *
+   * @param newsId
+   */
+  @PostMapping("/{id}/vote")
+  public void vote(@PathVariable(name = "id") Long newsId) {
+    newsService.vote(newsId);
+  }
+
+  //  unvote
+  @PostMapping("/{id}/unvote")
+  public void unvote(@PathVariable(name = "id") Long newsId) {
+    newsService.unvote(newsId);
+  }
+
+  // 获取票数
+  @GetMapping("/{id}/vote_count")
+  public Long getVoteCount(@PathVariable(name = "id") Long newsId) {
+    return newsService.getVoteCount(newsId);
+  }
+
   private final NewsService newsService;
   private final CommentService commentService;
 }

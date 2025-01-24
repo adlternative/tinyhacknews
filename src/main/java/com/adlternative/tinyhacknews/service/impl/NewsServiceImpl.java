@@ -4,6 +4,7 @@ import com.adlternative.tinyhacknews.context.RequestContext;
 import com.adlternative.tinyhacknews.entity.Comments;
 import com.adlternative.tinyhacknews.entity.News;
 import com.adlternative.tinyhacknews.entity.Users;
+import com.adlternative.tinyhacknews.entity.Votes;
 import com.adlternative.tinyhacknews.exception.DBException;
 import com.adlternative.tinyhacknews.exception.ForbiddenException;
 import com.adlternative.tinyhacknews.exception.InternalErrorException;
@@ -12,8 +13,10 @@ import com.adlternative.tinyhacknews.exception.UserNotFoundException;
 import com.adlternative.tinyhacknews.mapper.CommentsMapper;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
+import com.adlternative.tinyhacknews.mapper.VotesMapper;
 import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.models.enums.NewsTypeEnum;
+import com.adlternative.tinyhacknews.models.enums.VoteItemTypeEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsMetaDetailsOutputDTO;
@@ -65,7 +68,7 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to insert news, affectedRows equals to zero");
       }
-      return NewsDataOutputDTO.from(news, user);
+      return NewsDataOutputDTO.from(news, user, 0L);
     } catch (Exception e) {
       throw new InternalErrorException("Submit news failed", e);
     }
@@ -102,7 +105,12 @@ public class NewsServiceImpl implements NewsService {
     Users user =
         Optional.ofNullable(userMapper.selectById(news.getAuthorId()))
             .orElseThrow(() -> new UserNotFoundException("Failed to get news, user not found"));
-    return NewsDataOutputDTO.from(news, user);
+    Long pointCount =
+        votesMapper.selectCount(
+            new QueryWrapper<Votes>()
+                .eq("item_id", news.getId())
+                .eq("item_type", VoteItemTypeEnum.NEWS));
+    return NewsDataOutputDTO.from(news, user, pointCount);
   }
 
   @Override
@@ -129,7 +137,12 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to update news, affectedRows equals to zero");
       }
-      return NewsDataOutputDTO.from(news, user);
+      Long pointCount =
+          votesMapper.selectCount(
+              new QueryWrapper<Votes>()
+                  .eq("item_id", news.getId())
+                  .eq("item_type", VoteItemTypeEnum.NEWS));
+      return NewsDataOutputDTO.from(news, user, pointCount);
 
     } catch (Exception e) {
       throw new InternalErrorException("Update news failed", e);
@@ -143,7 +156,15 @@ public class NewsServiceImpl implements NewsService {
             .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
     return newsMapper
         .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<News>().eq("author_id", userId))
-        .convert(singleNew -> NewsDataOutputDTO.from(singleNew, user));
+        .convert(
+            singleNew -> {
+              Long pointsCount =
+                  votesMapper.selectCount(
+                      new QueryWrapper<Votes>()
+                          .eq("item_id", singleNew.getId())
+                          .eq("item_type", VoteItemTypeEnum.NEWS.name()));
+              return NewsDataOutputDTO.from(singleNew, user, pointsCount);
+            });
   }
 
   @Override
@@ -168,11 +189,75 @@ public class NewsServiceImpl implements NewsService {
               Long commentCount =
                   commentMapper.selectCount(
                       new QueryWrapper<Comments>().eq("news_id", singleNew.getId()));
-              return NewsMetaDetailsOutputDTO.from(singleNew, user, commentCount, 0L);
+              Long pointCount =
+                  votesMapper.selectCount(
+                      new QueryWrapper<Votes>()
+                          .eq("item_id", singleNew.getId())
+                          .eq("item_type", VoteItemTypeEnum.NEWS.name()));
+              return NewsMetaDetailsOutputDTO.from(singleNew, user, commentCount, pointCount);
             });
+  }
+
+  @Override
+  public void vote(Long newsId) {
+    // 如果已经投票过，则不允许重复投票
+    if (votesMapper.selectCount(
+            new QueryWrapper<Votes>()
+                .eq("item_id", newsId)
+                .eq("item_type", VoteItemTypeEnum.NEWS.name())
+                .eq("user_id", RequestContext.getUserId()))
+        > 0) {
+      throw new ForbiddenException("You have already voted for this news.");
+    }
+
+    // 如果这条新闻的作者是当前用户，则不允许投票
+    if (Objects.equals(newsMapper.selectById(newsId).getAuthorId(), RequestContext.getUserId())) {
+      throw new ForbiddenException("You cannot vote for your own news.");
+    }
+
+    // 插入投票记录
+    Date now = new Date();
+    votesMapper.insert(
+        new Votes()
+            .setUserId(RequestContext.getUserId())
+            .setItemId(newsId)
+            .setItemType(VoteItemTypeEnum.NEWS.name())
+            .setUpdatedAt(now)
+            .setCreatedAt(now));
+  }
+
+  @Override
+  public void unvote(Long newsId) {
+    try {
+      // 如果没有投票过，则不允许取消投票
+
+      Votes votes =
+          votesMapper.selectOne(
+              new QueryWrapper<Votes>()
+                  .eq("item_id", newsId)
+                  .eq("item_type", VoteItemTypeEnum.NEWS.name())
+                  .eq("user_id", RequestContext.getUserId()));
+      if (votes == null) {
+        throw new ForbiddenException("You have not voted for this news.");
+      }
+
+      votesMapper.deleteById(votes.getId());
+    } catch (Exception e) {
+      log.error("Failed to unvote news", e);
+      throw new InternalErrorException("Failed to unvote news", e);
+    }
+  }
+
+  @Override
+  public Long getVoteCount(Long newsId) {
+    return votesMapper.selectCount(
+        new QueryWrapper<Votes>()
+            .eq("item_id", newsId)
+            .eq("item_type", VoteItemTypeEnum.NEWS.name()));
   }
 
   private final NewsMapper newsMapper;
   private final UsersMapper userMapper;
   private final CommentsMapper commentMapper;
+  private final VotesMapper votesMapper;
 }

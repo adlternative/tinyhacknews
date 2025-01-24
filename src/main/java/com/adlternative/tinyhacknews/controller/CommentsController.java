@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +53,32 @@ public class CommentsController {
   @GetMapping("/{id}")
   public CommentOutPutDTO getComment(@PathVariable Long id) {
     return commentService.getComment(id);
+  }
+
+  /**
+   * 为某个评论投票
+   *
+   * @param commentId
+   */
+  @PostMapping("/{id}/vote")
+  public void vote(@PathVariable(name = "id") Long commentId) {
+    commentService.vote(commentId);
+  }
+
+  /**
+   * 为某个评论取消投票
+   *
+   * @param commentId
+   */
+  @PostMapping("/{id}/unvote")
+  public void unvote(@PathVariable(name = "id") Long commentId) {
+    commentService.unvote(commentId);
+  }
+
+  // 获取评论票数
+  @GetMapping("/{id}/vote_count")
+  public Long getVoteCount(@PathVariable(name = "id") Long commentId) {
+    return commentService.getVoteCount(commentId);
   }
 
   /**
