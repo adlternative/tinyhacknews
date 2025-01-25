@@ -15,8 +15,10 @@ public class NewsDataOutputDTO extends NewsInfo {
   private String url;
   private String text;
   private Long pointsCount;
+  // 当前用户是否已投票
+  private Boolean hasVote;
 
-  public static NewsDataOutputDTO from(News news, Users author, Long pointCount) {
+  public static NewsDataOutputDTO from(News news, Users author, Long pointCount, Boolean hasVote) {
     return NewsDataOutputDTO.builder()
         .id(news.getId())
         .title(news.getTitle())
@@ -26,6 +28,7 @@ public class NewsDataOutputDTO extends NewsInfo {
         .updatedAt(news.getUpdatedAt())
         .author(SimpleUserInfoOutputDTO.from(author))
         .pointsCount(pointCount)
+        .hasVote(hasVote)
         .build();
   }
 }

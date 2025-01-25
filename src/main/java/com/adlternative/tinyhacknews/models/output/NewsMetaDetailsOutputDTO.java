@@ -15,9 +15,11 @@ public class NewsMetaDetailsOutputDTO extends NewsMetaOutputDTO {
   private Long commentsCount;
   // 点赞数
   private Long pointsCount;
+  // 当前用户是否已投票
+  private Boolean hasVote;
 
   public static NewsMetaDetailsOutputDTO from(
-      News news, Users author, Long commentCount, Long pointCount) {
+      News news, Users author, Long commentCount, Long pointCount, Boolean hasVote) {
     return NewsMetaDetailsOutputDTO.builder()
         .id(news.getId())
         .title(news.getTitle())
@@ -27,6 +29,7 @@ public class NewsMetaDetailsOutputDTO extends NewsMetaOutputDTO {
         .author(SimpleUserInfoOutputDTO.from(author))
         .commentsCount(commentCount)
         .pointsCount(pointCount)
+        .hasVote(hasVote)
         .build();
   }
 }

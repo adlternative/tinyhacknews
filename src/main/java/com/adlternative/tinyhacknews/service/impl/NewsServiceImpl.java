@@ -68,7 +68,7 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to insert news, affectedRows equals to zero");
       }
-      return NewsDataOutputDTO.from(news, user, 0L);
+      return NewsDataOutputDTO.from(news, user, 0L, false);
     } catch (Exception e) {
       throw new InternalErrorException("Submit news failed", e);
     }
@@ -105,12 +105,9 @@ public class NewsServiceImpl implements NewsService {
     Users user =
         Optional.ofNullable(userMapper.selectById(news.getAuthorId()))
             .orElseThrow(() -> new UserNotFoundException("Failed to get news, user not found"));
-    Long pointCount =
-        votesMapper.selectCount(
-            new QueryWrapper<Votes>()
-                .eq("item_id", news.getId())
-                .eq("item_type", VoteItemTypeEnum.NEWS));
-    return NewsDataOutputDTO.from(news, user, pointCount);
+
+    return NewsDataOutputDTO.from(
+        news, user, getVoteCount(news.getId()), checkHasVote(news.getId()));
   }
 
   @Override
@@ -137,12 +134,9 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to update news, affectedRows equals to zero");
       }
-      Long pointCount =
-          votesMapper.selectCount(
-              new QueryWrapper<Votes>()
-                  .eq("item_id", news.getId())
-                  .eq("item_type", VoteItemTypeEnum.NEWS));
-      return NewsDataOutputDTO.from(news, user, pointCount);
+
+      return NewsDataOutputDTO.from(
+          news, user, getVoteCount(news.getId()), checkHasVote(news.getId()));
 
     } catch (Exception e) {
       throw new InternalErrorException("Update news failed", e);
@@ -157,14 +151,21 @@ public class NewsServiceImpl implements NewsService {
     return newsMapper
         .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<News>().eq("author_id", userId))
         .convert(
-            singleNew -> {
-              Long pointsCount =
-                  votesMapper.selectCount(
-                      new QueryWrapper<Votes>()
-                          .eq("item_id", singleNew.getId())
-                          .eq("item_type", VoteItemTypeEnum.NEWS.name()));
-              return NewsDataOutputDTO.from(singleNew, user, pointsCount);
-            });
+            singleNew ->
+                NewsDataOutputDTO.from(
+                    singleNew,
+                    user,
+                    getVoteCount(singleNew.getId()),
+                    checkHasVote(singleNew.getId())));
+  }
+
+  private Boolean checkHasVote(Long newId) {
+    return votesMapper.selectCount(
+            new QueryWrapper<Votes>()
+                .eq("item_id", newId)
+                .eq("item_type", VoteItemTypeEnum.NEWS.name())
+                .eq("user_id", RequestContext.getUserId()))
+        > 0;
   }
 
   @Override
@@ -189,12 +190,13 @@ public class NewsServiceImpl implements NewsService {
               Long commentCount =
                   commentMapper.selectCount(
                       new QueryWrapper<Comments>().eq("news_id", singleNew.getId()));
-              Long pointCount =
-                  votesMapper.selectCount(
-                      new QueryWrapper<Votes>()
-                          .eq("item_id", singleNew.getId())
-                          .eq("item_type", VoteItemTypeEnum.NEWS.name()));
-              return NewsMetaDetailsOutputDTO.from(singleNew, user, commentCount, pointCount);
+
+              return NewsMetaDetailsOutputDTO.from(
+                  singleNew,
+                  user,
+                  commentCount,
+                  getVoteCount(singleNew.getId()),
+                  checkHasVote(singleNew.getId()));
             });
   }
 
