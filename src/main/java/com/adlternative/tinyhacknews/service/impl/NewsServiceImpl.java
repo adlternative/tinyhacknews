@@ -68,7 +68,7 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to insert news, affectedRows equals to zero");
       }
-      return NewsDataOutputDTO.from(news, user, 0L, false);
+      return NewsDataOutputDTO.from(news, user, 0L, 0L, false);
     } catch (Exception e) {
       throw new InternalErrorException("Submit news failed", e);
     }
@@ -107,7 +107,11 @@ public class NewsServiceImpl implements NewsService {
             .orElseThrow(() -> new UserNotFoundException("Failed to get news, user not found"));
 
     return NewsDataOutputDTO.from(
-        news, user, getVoteCount(news.getId()), checkHasVote(news.getId()));
+        news,
+        user,
+        getCommentCount(news.getId()),
+        getVoteCount(news.getId()),
+        checkHasVote(news.getId()));
   }
 
   @Override
@@ -136,7 +140,11 @@ public class NewsServiceImpl implements NewsService {
       }
 
       return NewsDataOutputDTO.from(
-          news, user, getVoteCount(news.getId()), checkHasVote(news.getId()));
+          news,
+          user,
+          getCommentCount(news.getId()),
+          getVoteCount(news.getId()),
+          checkHasVote(news.getId()));
 
     } catch (Exception e) {
       throw new InternalErrorException("Update news failed", e);
@@ -155,6 +163,7 @@ public class NewsServiceImpl implements NewsService {
                 NewsDataOutputDTO.from(
                     singleNew,
                     user,
+                    getCommentCount(singleNew.getId()),
                     getVoteCount(singleNew.getId()),
                     checkHasVote(singleNew.getId())));
   }
@@ -187,9 +196,7 @@ public class NewsServiceImpl implements NewsService {
                       .orElseThrow(
                           () -> new UserNotFoundException("Failed to get user, user not found"));
               // TODO: 直接 mapper xml join 实现
-              Long commentCount =
-                  commentMapper.selectCount(
-                      new QueryWrapper<Comments>().eq("news_id", singleNew.getId()));
+              Long commentCount = getCommentCount(singleNew.getId());
 
               return NewsMetaDetailsOutputDTO.from(
                   singleNew,
@@ -198,6 +205,10 @@ public class NewsServiceImpl implements NewsService {
                   getVoteCount(singleNew.getId()),
                   checkHasVote(singleNew.getId()));
             });
+  }
+
+  private Long getCommentCount(Long newsId) {
+    return commentMapper.selectCount(new QueryWrapper<Comments>().eq("news_id", newsId));
   }
 
   @Override
