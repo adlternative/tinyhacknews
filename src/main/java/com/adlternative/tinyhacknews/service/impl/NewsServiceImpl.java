@@ -1,5 +1,7 @@
 package com.adlternative.tinyhacknews.service.impl;
 
+import static java.util.Map.Entry.comparingByValue;
+
 import com.adlternative.tinyhacknews.context.RequestContext;
 import com.adlternative.tinyhacknews.entity.Comments;
 import com.adlternative.tinyhacknews.entity.News;
@@ -14,22 +16,35 @@ import com.adlternative.tinyhacknews.mapper.CommentsMapper;
 import com.adlternative.tinyhacknews.mapper.NewsMapper;
 import com.adlternative.tinyhacknews.mapper.UsersMapper;
 import com.adlternative.tinyhacknews.mapper.VotesMapper;
+import com.adlternative.tinyhacknews.models.dto.NewsWithRankScore;
 import com.adlternative.tinyhacknews.models.enums.ListAllNewsOrderEnum;
 import com.adlternative.tinyhacknews.models.enums.NewsTypeEnum;
 import com.adlternative.tinyhacknews.models.enums.VoteItemTypeEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsMetaDetailsOutputDTO;
+import com.adlternative.tinyhacknews.service.NewsRankingCacheService;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -68,10 +83,25 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to insert news, affectedRows equals to zero");
       }
-      return NewsDataOutputDTO.from(news, user, 0L, 0L, false);
+      NewsDataOutputDTO from = NewsDataOutputDTO.from(news, user, 0L, 0L, false);
+      // TODO: 改成异步更新缓存
+      newsRankingCacheService.addOrUpdateNewsScore(news.getId(), getNewsScore(news.getId()));
+      return from;
     } catch (Exception e) {
       throw new InternalErrorException("Submit news failed", e);
     }
+  }
+
+  @Override
+  public double getNewsScore(Long newsId) {
+    //  S= P /(T + 2)^1.8
+    // P  是新闻的投票数量
+    // T  是新闻的创建时间（小时数）
+
+    long diffInHours =
+        (new Date().getTime() - getNews(newsId).getCreatedAt().getTime()) / (60 * 60 * 1000);
+
+    return getVoteCount(newsId) / Math.pow(diffInHours + 2, 1.8);
   }
 
   @Override
@@ -91,6 +121,8 @@ public class NewsServiceImpl implements NewsService {
       if (affectedRows == 0) {
         throw new DBException("Failed to delete news, affectedRows equals to zero");
       }
+      // TODO: 改成异步更新缓存
+      newsRankingCacheService.removeNews(news.getId());
     } catch (Exception e) {
       throw new InternalErrorException("Delete news failed", e);
     }
@@ -237,6 +269,8 @@ public class NewsServiceImpl implements NewsService {
             .setItemType(VoteItemTypeEnum.NEWS.name())
             .setUpdatedAt(now)
             .setCreatedAt(now));
+    // 更新缓存分数
+    newsRankingCacheService.addOrUpdateNewsScore(newsId, getNewsScore(newsId));
   }
 
   @Override
@@ -269,8 +303,142 @@ public class NewsServiceImpl implements NewsService {
             .eq("item_type", VoteItemTypeEnum.NEWS.name()));
   }
 
+  @Override
+  public List<NewsMetaDetailsOutputDTO> getTopNews(Long offset, Long limit) {
+    // TODO: 改成一个 SQL
+    Set<ZSetOperations.TypedTuple<String>> newsWithScore =
+        newsRankingCacheService.getNewsWithScore(offset.intValue(), limit.intValue());
+
+    // 默认按照 score 倒序，如果 score 相同，则按照新闻创建时间倒序
+    Set<NewsWithRankScore> newsWithRankScore = new TreeSet<>();
+    for (ZSetOperations.TypedTuple<String> newsWithScoreTuple : newsWithScore) {
+
+      Long newId = Long.valueOf(newsWithScoreTuple.getValue());
+      newsWithRankScore.add(
+          new NewsWithRankScore(newsMapper.selectById(newId), newsWithScoreTuple.getScore()));
+    }
+
+    return newsWithRankScore.stream()
+        .map(NewsWithRankScore::getNews)
+        .map(News::getId)
+        .map(newsMapper::selectById)
+        .map(
+            singleNew -> {
+              Long userId = singleNew.getAuthorId();
+              Users user =
+                  Optional.ofNullable(userMapper.selectById(userId))
+                      .orElseThrow(
+                          () -> new UserNotFoundException("Failed to get user, user not found"));
+              // TODO: 直接 mapper xml join 实现
+              Long commentCount = getCommentCount(singleNew.getId());
+
+              return NewsMetaDetailsOutputDTO.from(
+                  singleNew,
+                  user,
+                  commentCount,
+                  getVoteCount(singleNew.getId()),
+                  checkHasVote(singleNew.getId()));
+            })
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public void reCalculateNewsRankScore() {
+    newsRankingCacheService.getAllNews().stream()
+        .map(Long::valueOf)
+        // TODO: 换成批量更新
+        .forEach(
+            newsId -> newsRankingCacheService.addOrUpdateNewsScore(newsId, getNewsScore(newsId)));
+  }
+
+  // 捞x周以内创建的新闻
+  private Set<Long> getRecentNewsIds(long week) {
+    return newsMapper
+        .selectList(new QueryWrapper<News>().gt("created_at", LocalDateTime.now().minusWeeks(week)))
+        .stream()
+        .map(News::getId)
+        .collect(Collectors.toSet());
+  }
+
+  // 捞x周以内有评论的新闻
+  private Set<Long> getRecentNewsIdsWithComments(long week) {
+    return commentMapper
+        .selectList(
+            new QueryWrapper<Comments>().gt("created_at", LocalDateTime.now().minusWeeks(week)))
+        .stream()
+        .map(Comments::getNewsId)
+        .collect(Collectors.toSet());
+  }
+
+  // 捞x周以内有投票的新闻
+  private Set<Long> getRecentNewsIdsWithVotes(long week) {
+    return votesMapper
+        .selectList(
+            new QueryWrapper<Votes>().gt("created_at", LocalDateTime.now().minusWeeks(week)))
+        .stream()
+        .filter(vote -> vote.getItemType().equals(VoteItemTypeEnum.NEWS.name()))
+        .map(Votes::getItemId)
+        .collect(Collectors.toSet());
+  }
+
+  // 预热新闻排名
+  @PostConstruct
+  public void preHeatingNewsRank() {
+    // 只在 redis 中缺少新闻排名时才预热
+    if (newsRankingCacheService.getNewsCount() > 0) {
+      log.info("News rank is already pre-heated");
+      return;
+    }
+
+    log.info("Pre-heating news rank to redis");
+    // 1. 确定候选集
+
+    Set<Long> newIds = new HashSet<>();
+
+    // 1.1 如果数据库中新闻总数特别少，< N 直接将数据库中的全部数据放入候选集
+    if (newsMapper.selectCount(new QueryWrapper<>()).intValue() < 200) {
+      newIds.addAll(
+          newsMapper.selectList(new QueryWrapper<>()).stream()
+              .map(News::getId)
+              .collect(Collectors.toSet()));
+    } else {
+      // 1.2 选出一周内的热点新闻
+      long week = 1L;
+
+      // 合并3个集合
+      newIds.addAll(getRecentNewsIds(week));
+      newIds.addAll(getRecentNewsIdsWithVotes(week));
+      newIds.addAll(getRecentNewsIdsWithComments(week));
+
+      // 如果候选集数量不足 N，说明可能最近的新闻就是不够多（像是产品初期没有用户），那就按照创建时间倒序，取前 N 个
+      if (newIds.size() < 200) {
+        newIds.addAll(
+            newsMapper
+                .selectList(new QueryWrapper<News>().orderByDesc("created_at").last("limit 200"))
+                .stream()
+                .map(News::getId)
+                .collect(Collectors.toSet()));
+      }
+    }
+
+    // newsID -> score
+    Map<Long, Double> news2Score = new HashMap<>();
+
+    newIds.forEach(newsId -> news2Score.put(newsId, getNewsScore(newsId)));
+    // 进行排序，过滤 前 N
+    List<Map.Entry<Long, Double>> topKEntries =
+        news2Score.entrySet().stream()
+            .sorted(comparingByValue(Comparator.reverseOrder()))
+            .limit(200)
+            .collect(Collectors.toList());
+
+    // 2. 预热新闻排名
+    newsRankingCacheService.batchAdd(topKEntries);
+  }
+
   private final NewsMapper newsMapper;
   private final UsersMapper userMapper;
   private final CommentsMapper commentMapper;
   private final VotesMapper votesMapper;
+  private final NewsRankingCacheService newsRankingCacheService;
 }

@@ -6,6 +6,7 @@ import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsMetaDetailsOutputDTO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.util.List;
 
 public interface NewsService {
 
@@ -16,6 +17,9 @@ public interface NewsService {
    * @return
    */
   NewsDataOutputDTO submit(SubmitNewsInputDTO submitNewsInputDTO);
+
+  //  getNewsScore S= P /(T + 2)^1.8
+  double getNewsScore(Long newsId);
 
   /**
    * 删除一条新闻
@@ -73,4 +77,16 @@ public interface NewsService {
    * @return
    */
   Long getVoteCount(Long newsId);
+
+  /**
+   * 获取按照热点分数排序的新闻
+   *
+   * @param offset
+   * @param limit
+   * @return
+   */
+  List<NewsMetaDetailsOutputDTO> getTopNews(Long offset, Long limit);
+
+  /** 重新计算新闻排名分数 */
+  void reCalculateNewsRankScore();
 }

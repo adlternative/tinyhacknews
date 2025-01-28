@@ -7,7 +7,17 @@ spring:
         username: tiny-hacknews
         password: 123456
         driver-class-name: com.mysql.cj.jdbc.Driver
-
+    redis:
+        host: localhost
+        port: 6379
+#        password: your_redis_password  # 如果有密码的话
+        database: 0
+        lettuce:
+            pool:
+                max-active: 8
+                max-idle: 8
+                min-idle: 0
+                max-wait: -1ms
 logging:
     level:
         org:
@@ -33,3 +43,5 @@ springdoc:
         path: /api/v1/swagger/swagger-ui.html
     api-docs:
         path: /api/v1/swagger/api-docs
+
+

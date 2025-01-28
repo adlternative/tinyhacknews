@@ -10,6 +10,7 @@ import com.adlternative.tinyhacknews.models.output.NewsMetaDetailsOutputDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/news")
 @RequiredArgsConstructor
 public class NewsController {
+
+  @GetMapping("/top")
+  public List<NewsMetaDetailsOutputDTO> getTopNews(
+      @RequestParam(required = false, defaultValue = "0") Long offset,
+      @RequestParam(required = false, defaultValue = "30") Long limit) {
+    return newsService.getTopNews(offset, limit);
+  }
 
   /**
    * 提交新闻
