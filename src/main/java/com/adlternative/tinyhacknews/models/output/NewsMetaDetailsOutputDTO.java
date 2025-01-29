@@ -24,6 +24,7 @@ public class NewsMetaDetailsOutputDTO extends NewsMetaOutputDTO {
         .id(news.getId())
         .title(news.getTitle())
         .url(news.getUrl())
+        .newsType(news.getNewsType())
         .createdAt(news.getCreatedAt())
         .updatedAt(news.getUpdatedAt())
         .author(SimpleUserInfoOutputDTO.from(author))

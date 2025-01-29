@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 public class NewsMetaOutputDTO extends NewsInfo {
   private String title;
   private String url;
+  private String newsType;
 
   public static NewsMetaOutputDTO from(News news, Users author) {
     return NewsMetaOutputDTO.builder()
@@ -22,6 +23,7 @@ public class NewsMetaOutputDTO extends NewsInfo {
         .createdAt(news.getCreatedAt())
         .updatedAt(news.getUpdatedAt())
         .author(SimpleUserInfoOutputDTO.from(author))
+        .newsType(news.getNewsType())
         .build();
   }
 }

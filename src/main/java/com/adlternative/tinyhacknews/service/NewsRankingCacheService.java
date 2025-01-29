@@ -1,12 +1,16 @@
 package com.adlternative.tinyhacknews.service;
 
+import static com.adlternative.tinyhacknews.constants.NewsRankingConstants.NEWS_RANKING_DEFAULT_TOPN;
+
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.ReturnType;
+import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -15,7 +19,6 @@ import org.springframework.stereotype.Service;
 public class NewsRankingCacheService {
 
   private static final String NEWS_RANKING_ZSET_KEY = "news:ranking";
-  private static final long TOP_N = 200;
 
   @Autowired private StringRedisTemplate stringRedisTemplate;
 
@@ -30,7 +33,7 @@ public class NewsRankingCacheService {
     String script =
         "redis.call('ZADD', KEYS[1], ARGV[1], ARGV[2]); "
             + "redis.call('ZREMRANGEBYRANK', KEYS[1], 0, -"
-            + (TOP_N + 1)
+            + (NEWS_RANKING_DEFAULT_TOPN + 1)
             + "); "
             + "return 1;";
 
@@ -50,7 +53,20 @@ public class NewsRankingCacheService {
 
   public void batchAdd(List<Map.Entry<Long, Double>> news2Score) {
     // TODO: 使用 Lua 脚本，原子性地添加或更新新闻分数
-    news2Score.forEach(entry -> addOrUpdateNewsScore(entry.getKey(), entry.getValue()));
+    batchAddToZSet(NEWS_RANKING_ZSET_KEY, news2Score);
+  }
+
+  public void batchAddToZSet(String zsetKey, List<java.util.Map.Entry<Long, Double>> news2Score) {
+    if (news2Score == null || news2Score.isEmpty()) {
+      return;
+    }
+
+    Set<ZSetOperations.TypedTuple<String>> tuples =
+        news2Score.stream()
+            .map(entry -> new DefaultTypedTuple<>(String.valueOf(entry.getKey()), entry.getValue()))
+            .collect(Collectors.toSet());
+
+    stringRedisTemplate.opsForZSet().add(zsetKey, tuples);
   }
 
   /**
@@ -60,8 +76,8 @@ public class NewsRankingCacheService {
    * @return 按分数从高到低排序的新闻ID集合
    */
   public Set<String> getTopNNews(int topN) {
-    if (topN > TOP_N) {
-      topN = (int) TOP_N;
+    if (topN > NEWS_RANKING_DEFAULT_TOPN) {
+      topN = NEWS_RANKING_DEFAULT_TOPN.intValue();
     }
     return stringRedisTemplate.opsForZSet().reverseRange(NEWS_RANKING_ZSET_KEY, 0, topN - 1);
   }

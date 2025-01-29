@@ -1,5 +1,6 @@
 package com.adlternative.tinyhacknews.service.impl;
 
+import static com.adlternative.tinyhacknews.constants.NewsRankingConstants.NEWS_RANKING_DEFAULT_TOPN;
 import static java.util.Map.Entry.comparingByValue;
 
 import com.adlternative.tinyhacknews.context.RequestContext;
@@ -23,6 +24,8 @@ import com.adlternative.tinyhacknews.models.enums.VoteItemTypeEnum;
 import com.adlternative.tinyhacknews.models.input.SubmitNewsInputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsDataOutputDTO;
 import com.adlternative.tinyhacknews.models.output.NewsMetaDetailsOutputDTO;
+import com.adlternative.tinyhacknews.models.pages.PageOutputDTO;
+import com.adlternative.tinyhacknews.models.pages.PagePara;
 import com.adlternative.tinyhacknews.service.NewsRankingCacheService;
 import com.adlternative.tinyhacknews.service.NewsService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -94,14 +97,14 @@ public class NewsServiceImpl implements NewsService {
 
   @Override
   public double getNewsScore(Long newsId) {
-    //  S= P /(T + 2)^1.8
+    //  S= (1 + P) /(T + 2)^1.8
     // P  是新闻的投票数量
     // T  是新闻的创建时间（小时数）
 
     long diffInHours =
         (new Date().getTime() - getNews(newsId).getCreatedAt().getTime()) / (60 * 60 * 1000);
 
-    return getVoteCount(newsId) / Math.pow(diffInHours + 2, 1.8);
+    return (1 + getVoteCount(newsId)) / Math.pow(diffInHours + 2, 1.8);
   }
 
   @Override
@@ -210,7 +213,7 @@ public class NewsServiceImpl implements NewsService {
   }
 
   @Override
-  public IPage<NewsMetaDetailsOutputDTO> getAllNews(
+  public PageOutputDTO<NewsMetaDetailsOutputDTO> getAllNews(
       Long pageNum, Long pageSize, ListAllNewsOrderEnum order, NewsTypeEnum type, String date) {
     // TODO: date 必须是形如 2020-01-01 的格式, 否则会抛出异常
     // 检查日期格式是否正确
@@ -218,25 +221,49 @@ public class NewsServiceImpl implements NewsService {
       throw new IllegalArgumentException("Date must be in YYYY-MM-DD format");
     }
 
-    return newsMapper
-        .selectAllInOrder(new Page<>(pageNum, pageSize), order, type, date)
-        .convert(
-            singleNew -> {
-              Long userId = singleNew.getAuthorId();
-              Users user =
-                  Optional.ofNullable(userMapper.selectById(userId))
-                      .orElseThrow(
-                          () -> new UserNotFoundException("Failed to get user, user not found"));
-              // TODO: 直接 mapper xml join 实现
-              Long commentCount = getCommentCount(singleNew.getId());
+    // 日期模式不能与分数模式一起使用
+    if (StringUtils.isNotEmpty(date) && order == ListAllNewsOrderEnum.POINT) {
+      throw new IllegalArgumentException("Date mode cannot be used with POINT order");
+    }
 
-              return NewsMetaDetailsOutputDTO.from(
-                  singleNew,
-                  user,
-                  commentCount,
-                  getVoteCount(singleNew.getId()),
-                  checkHasVote(singleNew.getId()));
-            });
+    // 按分数排序
+    if (order == ListAllNewsOrderEnum.POINT) {
+      List<NewsMetaDetailsOutputDTO> topNews = getTopNews((pageNum - 1) * pageSize, pageSize);
+
+      if (type != NewsTypeEnum.NORMAL) {
+        topNews =
+            topNews.stream()
+                .filter(news -> news.getNewsType().equals(type.toString()))
+                .collect(Collectors.toList());
+      }
+
+      PageOutputDTO<NewsMetaDetailsOutputDTO> pageOutputDTO = new PageOutputDTO<>();
+      pageOutputDTO.setList(topNews);
+      pageOutputDTO.setPage(new PagePara(pageNum, pageSize, -1L, -1L));
+      return pageOutputDTO;
+    }
+
+    return PageOutputDTO.from(
+        newsMapper
+            .selectAllInOrder(new Page<>(pageNum, pageSize), order, type, date)
+            .convert(
+                singleNew -> {
+                  Long userId = singleNew.getAuthorId();
+                  Users user =
+                      Optional.ofNullable(userMapper.selectById(userId))
+                          .orElseThrow(
+                              () ->
+                                  new UserNotFoundException("Failed to get user, user not found"));
+                  // TODO: 直接 mapper xml join 实现
+                  Long commentCount = getCommentCount(singleNew.getId());
+
+                  return NewsMetaDetailsOutputDTO.from(
+                      singleNew,
+                      user,
+                      commentCount,
+                      getVoteCount(singleNew.getId()),
+                      checkHasVote(singleNew.getId()));
+                }));
   }
 
   private Long getCommentCount(Long newsId) {
@@ -306,17 +333,22 @@ public class NewsServiceImpl implements NewsService {
   @Override
   public List<NewsMetaDetailsOutputDTO> getTopNews(Long offset, Long limit) {
     // TODO: 改成一个 SQL
+    log.info("Get top news, offset: {}, limit: {}", offset, limit);
+
     Set<ZSetOperations.TypedTuple<String>> newsWithScore =
         newsRankingCacheService.getNewsWithScore(offset.intValue(), limit.intValue());
+    log.debug("newsWithScore length: {}", newsWithScore.size());
 
     // 默认按照 score 倒序，如果 score 相同，则按照新闻创建时间倒序
     Set<NewsWithRankScore> newsWithRankScore = new TreeSet<>();
     for (ZSetOperations.TypedTuple<String> newsWithScoreTuple : newsWithScore) {
-
-      Long newId = Long.valueOf(newsWithScoreTuple.getValue());
       newsWithRankScore.add(
-          new NewsWithRankScore(newsMapper.selectById(newId), newsWithScoreTuple.getScore()));
+          new NewsWithRankScore(
+              newsMapper.selectById(Long.valueOf(newsWithScoreTuple.getValue())),
+              newsWithScoreTuple.getScore()));
     }
+
+    log.debug("newsWithRankScore length: {}", newsWithRankScore.size());
 
     return newsWithRankScore.stream()
         .map(NewsWithRankScore::getNews)
@@ -396,7 +428,7 @@ public class NewsServiceImpl implements NewsService {
     Set<Long> newIds = new HashSet<>();
 
     // 1.1 如果数据库中新闻总数特别少，< N 直接将数据库中的全部数据放入候选集
-    if (newsMapper.selectCount(new QueryWrapper<>()).intValue() < 200) {
+    if (newsMapper.selectCount(new QueryWrapper<>()).intValue() < NEWS_RANKING_DEFAULT_TOPN) {
       newIds.addAll(
           newsMapper.selectList(new QueryWrapper<>()).stream()
               .map(News::getId)
@@ -411,10 +443,13 @@ public class NewsServiceImpl implements NewsService {
       newIds.addAll(getRecentNewsIdsWithComments(week));
 
       // 如果候选集数量不足 N，说明可能最近的新闻就是不够多（像是产品初期没有用户），那就按照创建时间倒序，取前 N 个
-      if (newIds.size() < 200) {
+      if (newIds.size() < NEWS_RANKING_DEFAULT_TOPN) {
         newIds.addAll(
             newsMapper
-                .selectList(new QueryWrapper<News>().orderByDesc("created_at").last("limit 200"))
+                .selectList(
+                    new QueryWrapper<News>()
+                        .orderByDesc("created_at")
+                        .last(String.format("limit %d", NEWS_RANKING_DEFAULT_TOPN)))
                 .stream()
                 .map(News::getId)
                 .collect(Collectors.toSet()));
@@ -429,7 +464,7 @@ public class NewsServiceImpl implements NewsService {
     List<Map.Entry<Long, Double>> topKEntries =
         news2Score.entrySet().stream()
             .sorted(comparingByValue(Comparator.reverseOrder()))
-            .limit(200)
+            .limit(NEWS_RANKING_DEFAULT_TOPN)
             .collect(Collectors.toList());
 
     // 2. 预热新闻排名
