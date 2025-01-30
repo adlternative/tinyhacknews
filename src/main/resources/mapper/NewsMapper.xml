@@ -29,11 +29,9 @@
         </if>
         ORDER BY updated_at
         <choose>
-            <when test="order.toString() == 'DATE_DESC'">
-                DESC
-            </when>
+            <when test="order.toString() == 'DATE_ASC'"/>
             <otherwise>
-                ASC
+                DESC
             </otherwise>
         </choose>
 

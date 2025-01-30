@@ -32,6 +32,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,9 +69,8 @@ public class NewsServiceImpl implements NewsService {
     String url = getPureHttpsUrl(submitNewsInputDTO.getUrl());
 
     Long userId = RequestContext.getUserId();
-    Users user =
-        Optional.ofNullable(userMapper.selectById(userId))
-            .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
+
+    Users user = getUserByUserId(userId);
     NewsTypeEnum newsType = NewsTypeEnum.NORMAL;
     String title = submitNewsInputDTO.getTitle();
     if (title.startsWith("Show HN:")) {
@@ -148,9 +148,7 @@ public class NewsServiceImpl implements NewsService {
     News news =
         Optional.ofNullable(newsMapper.selectById(id))
             .orElseThrow(() -> new NewsNotFoundException("Failed to get news, news not found"));
-    Users user =
-        Optional.ofNullable(userMapper.selectById(news.getAuthorId()))
-            .orElseThrow(() -> new UserNotFoundException("Failed to get news, user not found"));
+    Users user = getUserByUserId(news.getAuthorId());
 
     return NewsDataOutputDTO.from(
         news,
@@ -168,9 +166,7 @@ public class NewsServiceImpl implements NewsService {
     News news =
         Optional.ofNullable(newsMapper.selectById(id))
             .orElseThrow(() -> new NewsNotFoundException("Failed to get news, news not found"));
-    Users user =
-        Optional.ofNullable(userMapper.selectById(news.getAuthorId()))
-            .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
+    Users user = getUserByUserId(news.getAuthorId());
 
     // 目前只是判断 userId 是否和 news.authorId 相等，之后会改成使用权限校验的方式
     if (!Objects.equals(news.getAuthorId(), userId)) {
@@ -201,9 +197,7 @@ public class NewsServiceImpl implements NewsService {
 
   @Override
   public IPage<NewsDataOutputDTO> getAllNewsOfUser(Long userId, Long pageNum, Long pageSize) {
-    Users user =
-        Optional.ofNullable(userMapper.selectById(userId))
-            .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
+    Users user = getUserByUserId(userId);
     return newsMapper
         .selectPage(new Page<>(pageNum, pageSize), new QueryWrapper<News>().eq("author_id", userId))
         .convert(
@@ -241,42 +235,58 @@ public class NewsServiceImpl implements NewsService {
 
     // 按分数排序
     if (order == ListAllNewsOrderEnum.POINT) {
-      List<NewsMetaDetailsOutputDTO> topNews = getTopNews((pageNum - 1) * pageSize, pageSize);
-
-      if (type != NewsTypeEnum.NORMAL) {
-        topNews =
-            topNews.stream()
-                .filter(news -> news.getNewsType().equals(type.toString()))
-                .collect(Collectors.toList());
+      PageOutputDTO<NewsMetaDetailsOutputDTO> allNewsOrderByRank =
+          getAllNewsOrderByRank(pageNum, pageSize, type);
+      if (allNewsOrderByRank.getList().size() >= 30) {
+        return allNewsOrderByRank;
       }
+      // <= 30 特殊处理，兜底从db捞出来，然后排序
+    }
 
-      PageOutputDTO<NewsMetaDetailsOutputDTO> pageOutputDTO = new PageOutputDTO<>();
-      pageOutputDTO.setList(topNews);
-      pageOutputDTO.setPage(new PagePara(pageNum, pageSize, -1L, -1L));
-      return pageOutputDTO;
+    IPage<News> news =
+        newsMapper.selectAllInOrder(new Page<>(pageNum, pageSize), order, type, date);
+
+    if (order == ListAllNewsOrderEnum.POINT) {
+      // 计算 news 分数，首先按照分数排序，然后按照日期倒序
+      IPage<NewsWithRankScore> newsWithRankScores =
+          news.convert(
+              singleNews -> new NewsWithRankScore(singleNews, getNewsScore(singleNews.getId())));
+      Collections.sort(newsWithRankScores.getRecords());
+      news = newsWithRankScores.convert(NewsWithRankScore::getNews);
     }
 
     return PageOutputDTO.from(
-        newsMapper
-            .selectAllInOrder(new Page<>(pageNum, pageSize), order, type, date)
-            .convert(
-                singleNew -> {
-                  Long userId = singleNew.getAuthorId();
-                  Users user =
-                      Optional.ofNullable(userMapper.selectById(userId))
-                          .orElseThrow(
-                              () ->
-                                  new UserNotFoundException("Failed to get user, user not found"));
-                  // TODO: 直接 mapper xml join 实现
-                  Long commentCount = getCommentCount(singleNew.getId());
+        news.convert(
+            singleNew -> {
+              Users user = getUserByUserId(singleNew.getAuthorId());
+              // TODO: 直接 mapper xml join 实现
+              Long commentCount = getCommentCount(singleNew.getId());
 
-                  return NewsMetaDetailsOutputDTO.from(
-                      singleNew,
-                      user,
-                      commentCount,
-                      getVoteCount(singleNew.getId()),
-                      checkHasVote(singleNew.getId()));
-                }));
+              return NewsMetaDetailsOutputDTO.from(
+                  singleNew,
+                  user,
+                  commentCount,
+                  getVoteCount(singleNew.getId()),
+                  checkHasVote(singleNew.getId()));
+            }));
+  }
+
+  private PageOutputDTO<NewsMetaDetailsOutputDTO> getAllNewsOrderByRank(
+      Long pageNum, Long pageSize, NewsTypeEnum type) {
+    // 按分数排序
+    List<NewsMetaDetailsOutputDTO> topNews = getTopNews((pageNum - 1) * pageSize, pageSize);
+
+    if (type != NewsTypeEnum.NORMAL) {
+      topNews =
+          topNews.stream()
+              .filter(news -> news.getNewsType().equals(type.toString()))
+              .collect(Collectors.toList());
+    }
+
+    PageOutputDTO<NewsMetaDetailsOutputDTO> pageOutputDTO = new PageOutputDTO<>();
+    pageOutputDTO.setList(topNews);
+    pageOutputDTO.setPage(new PagePara(pageNum, pageSize, -1L, -1L));
+    return pageOutputDTO;
   }
 
   private Long getCommentCount(Long newsId) {
@@ -357,7 +367,8 @@ public class NewsServiceImpl implements NewsService {
     for (ZSetOperations.TypedTuple<String> newsWithScoreTuple : newsWithScore) {
       newsWithRankScore.add(
           new NewsWithRankScore(
-              newsMapper.selectById(Long.valueOf(newsWithScoreTuple.getValue())),
+              newsMapper.selectById(
+                  Long.valueOf(Objects.requireNonNull(newsWithScoreTuple.getValue()))),
               newsWithScoreTuple.getScore()));
     }
 
@@ -369,11 +380,7 @@ public class NewsServiceImpl implements NewsService {
         .map(newsMapper::selectById)
         .map(
             singleNew -> {
-              Long userId = singleNew.getAuthorId();
-              Users user =
-                  Optional.ofNullable(userMapper.selectById(userId))
-                      .orElseThrow(
-                          () -> new UserNotFoundException("Failed to get user, user not found"));
+              Users user = getUserByUserId(singleNew.getAuthorId());
               // TODO: 直接 mapper xml join 实现
               Long commentCount = getCommentCount(singleNew.getId());
 
@@ -413,6 +420,11 @@ public class NewsServiceImpl implements NewsService {
         .stream()
         .map(Comments::getNewsId)
         .collect(Collectors.toSet());
+  }
+
+  private Users getUserByUserId(Long userId) {
+    return Optional.ofNullable(userMapper.selectById(userId))
+        .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
   }
 
   // 捞x周以内有投票的新闻
