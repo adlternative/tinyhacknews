@@ -71,20 +71,13 @@ public class NewsServiceImpl implements NewsService {
     Long userId = RequestContext.getUserId();
 
     Users user = getUserByUserId(userId);
-    NewsTypeEnum newsType = NewsTypeEnum.NORMAL;
     String title = submitNewsInputDTO.getTitle();
-    if (title.startsWith("Show HN:")) {
-      newsType = NewsTypeEnum.SHOW;
-    } else if (title.startsWith("Ask HN:")) {
-      newsType = NewsTypeEnum.ASK;
-    } else if (title.startsWith("Jobs HN:")) {
-      newsType = NewsTypeEnum.JOBS;
-    }
+    NewsTypeEnum newsType = guessNewsType(title);
 
     Date date = new Date();
     News news =
         new News()
-            .setTitle(submitNewsInputDTO.getTitle())
+            .setTitle(title)
             .setUrl(url)
             .setText(submitNewsInputDTO.getText())
             .setNewsType(newsType.name())
@@ -104,6 +97,21 @@ public class NewsServiceImpl implements NewsService {
     } catch (Exception e) {
       throw new InternalErrorException("Submit news failed", e);
     }
+  }
+
+  private static NewsTypeEnum guessNewsType(String title) {
+    NewsTypeEnum newsType = NewsTypeEnum.NORMAL;
+
+    // 将标题转换为小写以忽略大小写的差异
+    String lowerCaseTitle = title.toLowerCase();
+    if (lowerCaseTitle.startsWith("show hn:")) {
+      newsType = NewsTypeEnum.SHOW;
+    } else if (lowerCaseTitle.startsWith("ask hn:")) {
+      newsType = NewsTypeEnum.ASK;
+    } else if (lowerCaseTitle.startsWith("jobs hn:")) {
+      newsType = NewsTypeEnum.JOBS;
+    }
+    return newsType;
   }
 
   @Override
