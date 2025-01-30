@@ -54,8 +54,19 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
+  private String getPureHttpsUrl(String url) {
+    if (url.startsWith("http://")) {
+      url = "https://" + url.substring(7);
+    } else if (!url.startsWith("https://")) {
+      url = "https://" + url;
+    }
+    return url;
+  }
+
   @Override
   public NewsDataOutputDTO submit(SubmitNewsInputDTO submitNewsInputDTO) {
+    String url = getPureHttpsUrl(submitNewsInputDTO.getUrl());
+
     Long userId = RequestContext.getUserId();
     Users user =
         Optional.ofNullable(userMapper.selectById(userId))
@@ -74,7 +85,7 @@ public class NewsServiceImpl implements NewsService {
     News news =
         new News()
             .setTitle(submitNewsInputDTO.getTitle())
-            .setUrl(submitNewsInputDTO.getUrl())
+            .setUrl(url)
             .setText(submitNewsInputDTO.getText())
             .setNewsType(newsType.name())
             .setAuthorId(userId)
@@ -151,6 +162,8 @@ public class NewsServiceImpl implements NewsService {
 
   @Override
   public NewsDataOutputDTO changeNews(Long id, SubmitNewsInputDTO submitNewsInputDTO) {
+    String url = getPureHttpsUrl(submitNewsInputDTO.getUrl());
+
     Long userId = RequestContext.getUserId();
     News news =
         Optional.ofNullable(newsMapper.selectById(id))
@@ -166,7 +179,7 @@ public class NewsServiceImpl implements NewsService {
 
     news.setTitle(submitNewsInputDTO.getTitle());
     news.setText(submitNewsInputDTO.getText());
-    news.setUrl(submitNewsInputDTO.getUrl());
+    news.setUrl(url);
     news.setUpdatedAt(new Date());
     try {
       int affectedRows = newsMapper.update(news, new QueryWrapper<News>().eq("id", id));
