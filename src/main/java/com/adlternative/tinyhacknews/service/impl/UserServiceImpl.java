@@ -24,6 +24,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
   private final UsersMapper usersMapper;
+  private final PasswordEncoder passwordEncoder;
 
   @Override
   public UserInfo register(UserRegisterInputDTO userRegisterInputDTO) {
@@ -39,19 +41,15 @@ public class UserServiceImpl implements UserService {
         new Users()
             .setUsername(userRegisterInputDTO.getName())
             .setEmail(userRegisterInputDTO.getEmail())
-            .setPassword(userRegisterInputDTO.getPassword())
+            .setPassword(passwordEncoder.encode(userRegisterInputDTO.getPassword()))
             .setCreatedAt(date)
             .setUpdatedAt(date);
-    log.info(user.getEmail());
-    log.info(user.getPassword());
-    log.info(user.getUsername());
 
     try {
       int affectedRows = usersMapper.insert(user);
       if (affectedRows == 0) {
         throw new InternalErrorException("Failed to insert user");
       }
-      log.debug("affectedRows=" + affectedRows);
     } catch (DuplicateKeyException e) {
       // log
       throw new UsernameExistsException(
@@ -140,9 +138,14 @@ public class UserServiceImpl implements UserService {
         usersMapper
             .findByUserName(username)
             .orElseThrow(() -> new UserNotFoundException("User not found for name: " + username));
-    if (!Objects.equals(user.getPassword(), password)) {
+
+    if (!passwordEncoder.matches(password, user.getPassword())
+        &&
+        // TODO: 删除或更新这种老密码系统
+        !Objects.equals(user.getPassword(), password)) {
       throw new UnauthorizedException("Username or password is incorrect");
     }
+
     return UserInfo.convertFrom(user);
   }
 
