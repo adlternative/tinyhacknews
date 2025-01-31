@@ -1,6 +1,7 @@
 package com.adlternative.tinyhacknews.service.impl;
 
 import static com.adlternative.tinyhacknews.constants.NewsRankingConstants.NEWS_RANKING_DEFAULT_TOPN;
+import static com.adlternative.tinyhacknews.utils.UrlValidator.isValidHttpUrl;
 import static java.util.Map.Entry.comparingByValue;
 
 import com.adlternative.tinyhacknews.context.RequestContext;
@@ -55,18 +56,20 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
-  private String getPureHttpsUrl(String url) {
-    if (url.startsWith("http://")) {
-      url = "https://" + url.substring(7);
-    } else if (!url.startsWith("https://")) {
-      url = "https://" + url;
-    }
-    return url;
-  }
 
   @Override
   public NewsDataOutputDTO submit(SubmitNewsInputDTO submitNewsInputDTO) {
-    String url = getPureHttpsUrl(submitNewsInputDTO.getUrl());
+    String url = submitNewsInputDTO.getUrl();
+
+    // 如果 url 不包含协议，则默认使用 https
+    if (!url.contains("://")) {
+      url = "https://" + url;
+    }
+
+    boolean validHttpUrl = isValidHttpUrl(url);
+    if (!validHttpUrl) {
+      throw new IllegalArgumentException("Invalid url");
+    }
 
     Long userId = RequestContext.getUserId();
 
@@ -168,7 +171,17 @@ public class NewsServiceImpl implements NewsService {
 
   @Override
   public NewsDataOutputDTO changeNews(Long id, SubmitNewsInputDTO submitNewsInputDTO) {
-    String url = getPureHttpsUrl(submitNewsInputDTO.getUrl());
+    String url = submitNewsInputDTO.getUrl();
+
+    // 如果 url 不包含协议，则默认使用 https
+    if (!url.contains("://")) {
+      url = "https://" + url;
+    }
+
+    boolean validHttpUrl = isValidHttpUrl(url);
+    if (!validHttpUrl) {
+      throw new IllegalArgumentException("Invalid url");
+    }
 
     Long userId = RequestContext.getUserId();
     News news =
