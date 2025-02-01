@@ -45,7 +45,7 @@ public interface CommentService {
    * @param newsId
    * @return
    */
-  IPage<CommentOutPutDTO> getComments(Long newsId, Long pageNum, Long pageSize);
+  List<CommentOutPutDTO> getComments(Long newsId);
 
   List<CommentOutPutDTO> getSubComments(Long commentId);
 

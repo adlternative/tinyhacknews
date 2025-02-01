@@ -49,10 +49,7 @@ public class CommentServiceImpl implements CommentService {
   @Override
   public CommentOutPutDTO submitComment(Long newsId, SubmitCommentInputDTO submitCommentInputDTO) {
     Long userId = RequestContext.getUserId();
-    Users user =
-        Optional.ofNullable(userMapper.selectById(userId))
-            .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
-
+    Users user = getUserByUserId(userId);
     News news =
         Optional.ofNullable(newsMapper.selectById(newsId))
             .orElseThrow(() -> new NewsNotFoundException("News not found for id: " + newsId));
@@ -102,10 +99,7 @@ public class CommentServiceImpl implements CommentService {
   @Override
   public void deleteComment(Long id) {
     Long userId = RequestContext.getUserId();
-    Users user =
-        Optional.ofNullable(userMapper.selectById(userId))
-            .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
-
+    Users user = getUserByUserId(userId);
     Comments comment =
         Optional.ofNullable(commentMapper.selectById(id))
             .orElseThrow(() -> new CommentNotFoundException("Comment not found for id: " + id));
@@ -135,9 +129,7 @@ public class CommentServiceImpl implements CommentService {
   @Override
   public CommentOutPutDTO modifyComment(Long id, UpdateCommentInputDTO updateCommentInputDTO) {
     Long userId = RequestContext.getUserId();
-    Users user =
-        Optional.ofNullable(userMapper.selectById(userId))
-            .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId));
+    Users user = getUserByUserId(userId);
 
     Comments comment =
         Optional.ofNullable(commentMapper.selectById(id))
@@ -174,34 +166,22 @@ public class CommentServiceImpl implements CommentService {
     Comments comment =
         Optional.ofNullable(commentMapper.selectById(id))
             .orElseThrow(() -> new CommentNotFoundException("Comment not found for id: " + id));
-    Users user =
-        Optional.ofNullable(userMapper.selectById(comment.getAuthorId()))
-            .orElseThrow(
-                () -> new UserNotFoundException("User not found for id: " + comment.getAuthorId()));
-
+    Users user = getUserByUserId(comment.getAuthorId());
     return CommentOutPutDTO.convertFrom(comment, user);
   }
 
   @Override
-  public IPage<CommentOutPutDTO> getComments(Long newsId, Long pageNum, Long pageSize) {
+  public List<CommentOutPutDTO> getComments(Long newsId) {
     // 证明新闻存在
     News news =
         Optional.ofNullable(newsMapper.selectById(newsId))
             .orElseThrow(() -> new NewsNotFoundException("News not found for id: " + newsId));
     // TODO: 一条 sql, join 一下就好
-    return commentMapper
-        .selectPage(
-            new Page<>(pageNum, pageSize), new QueryWrapper<Comments>().eq("news_id", news.getId()))
-        .convert(
-            comment -> {
-              Users user =
-                  Optional.ofNullable(userMapper.selectById(comment.getAuthorId()))
-                      .orElseThrow(
-                          () ->
-                              new UserNotFoundException(
-                                  "User not found for id: " + comment.getAuthorId()));
-              return CommentOutPutDTO.convertFrom(comment, user);
-            });
+    return commentMapper.selectByNewsId(news.getId()).stream()
+        .map(
+            comment ->
+                CommentOutPutDTO.convertFrom(comment, getUserByUserId(comment.getAuthorId())))
+        .collect(Collectors.toList());
   }
 
   @Override
@@ -215,15 +195,8 @@ public class CommentServiceImpl implements CommentService {
 
     return commentMapper.selectByParentCommentId(parentComment.getId()).stream()
         .map(
-            comment -> {
-              Users user =
-                  Optional.ofNullable(userMapper.selectById(comment.getAuthorId()))
-                      .orElseThrow(
-                          () ->
-                              new UserNotFoundException(
-                                  "User not found for id: " + comment.getAuthorId()));
-              return CommentOutPutDTO.convertFrom(comment, user);
-            })
+            comment ->
+                CommentOutPutDTO.convertFrom(comment, getUserByUserId(comment.getAuthorId())))
         .collect(Collectors.toList());
   }
 
@@ -246,12 +219,7 @@ public class CommentServiceImpl implements CommentService {
         .selectPage(new Page<>(pageNum, pageSize), query)
         .convert(
             comment -> {
-              Users user =
-                  Optional.ofNullable(userMapper.selectById(comment.getAuthorId()))
-                      .orElseThrow(
-                          () ->
-                              new UserNotFoundException(
-                                  "User not found for id: " + comment.getAuthorId()));
+              Users user = getUserByUserId(comment.getAuthorId());
               News news =
                   Optional.ofNullable(newsMapper.selectById(comment.getNewsId()))
                       .orElseThrow(
@@ -323,6 +291,11 @@ public class CommentServiceImpl implements CommentService {
         new QueryWrapper<Votes>()
             .eq("item_id", commentId)
             .eq("item_type", VoteItemTypeEnum.COMMENT.name()));
+  }
+
+  private Users getUserByUserId(Long userId) {
+    return Optional.ofNullable(userMapper.selectById(userId))
+        .orElseThrow(() -> new UserNotFoundException("Failed to get user, user not found"));
   }
 
   private final CommentsMapper commentMapper;

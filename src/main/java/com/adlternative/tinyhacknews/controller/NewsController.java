@@ -10,7 +10,6 @@ import com.adlternative.tinyhacknews.models.output.NewsMetaDetailsOutputDTO;
 import com.adlternative.tinyhacknews.models.pages.PageOutputDTO;
 import com.adlternative.tinyhacknews.service.CommentService;
 import com.adlternative.tinyhacknews.service.NewsService;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -87,11 +86,8 @@ public class NewsController {
    * @return
    */
   @GetMapping("/{id}/comments")
-  public IPage<CommentOutPutDTO> getComments(
-      @PathVariable(name = "id") Long newsId,
-      @RequestParam(name = "page_num", defaultValue = "1") Long pageNum,
-      @RequestParam(name = "page_size", defaultValue = "10") Long pageSize) {
-    return commentService.getComments(newsId, pageNum, pageSize);
+  public List<CommentOutPutDTO> getComments(@PathVariable(name = "id") Long newsId) {
+    return commentService.getComments(newsId);
   }
 
   /**
