@@ -45,7 +45,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -417,7 +416,12 @@ public class NewsServiceImpl implements NewsService {
 
   @Override
   public void reCalculateNewsRankScore() {
-    newsRankingCacheService.getAllNews().stream()
+    Set<String> cacheRankNews = newsRankingCacheService.getAllNews();
+    if (cacheRankNews.isEmpty()) {
+      preHeatingNewsRank();
+    }
+
+    cacheRankNews.stream()
         .map(Long::valueOf)
         // TODO: 换成批量更新
         .forEach(
@@ -460,7 +464,6 @@ public class NewsServiceImpl implements NewsService {
   }
 
   // 预热新闻排名
-  @PostConstruct
   public void preHeatingNewsRank() {
     // 只在 redis 中缺少新闻排名时才预热
     if (newsRankingCacheService.getNewsCount() > 0) {
