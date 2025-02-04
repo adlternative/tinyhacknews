@@ -43,7 +43,11 @@ public class WebConfig implements WebMvcConfigurer {
                 "https://localhost",
                 "http://localhost",
                 "http://127.0.0.1:*",
-                "https://127.0.0.1:*")
+                "https://127.0.0.1:*",
+                "https://www.adlternative.com",
+                "http://adlternative.com",
+                "http://112.124.27.140",
+                "https://112.124.27.140")
             .allowedMethods("GET", "POST", "OPTIONS", "PUT", "DELETE")
             .allowCredentials(true)
             .allowedHeaders("Content-Type");
